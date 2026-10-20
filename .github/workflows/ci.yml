@@ -1,0 +1,36 @@
+name: CI / Automated Testing & Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main, feature/* ]
+
+jobs:
+  verify-and-build:
+    name: Test & Build Check
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Copiar el código del repositorio en la máquina virtual de GitHub
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      # 2. Configurar el entorno de Node.js con caché de dependencias npm
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # 3. Instalar exactamente las versiones de paquetes declaradas en package-lock.json
+      - name: Instalar dependencias
+        run: npm ci
+
+      # 4. Ejecutar las pruebas unitarias con Vitest (en modo ejecucion única)
+      - name: Ejecutar Pruebas Unitarias
+        run: npm run test -- --run
+
+      # 5. Comprobar la compilación de TypeScript y producción con Vite
+      - name: Validar Compilación (Build)
+        run: npm run build
