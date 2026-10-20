@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Assets de MediaPipe (se generan con `npm run setup:hand-tracking`)
+public/mediapipe-wasm/
+public/models/hand_landmarker.task

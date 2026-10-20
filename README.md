@@ -28,6 +28,15 @@ npm run dev
 
 2. Abre en tu navegador la dirección local indicada en la terminal (por lo general `http://localhost:5173/`).
 
+### 🖐️ Control por gestos de mano (cámara)
+
+El modo Kiosco usa MediaPipe para seguir la mano con la cámara web. Los archivos pesados (~45 MB: modelo y WASM) **no se guardan en git**; se preparan automáticamente:
+
+* `npm install` y luego `npm run dev` (o `npm run build`) ejecutan `npm run setup:hand-tracking` por ti. Ese script copia los WASM desde `node_modules` a `public/mediapipe-wasm/` y descarga una vez `public/models/hand_landmarker.task`. **Necesita internet la primera vez.**
+* Si la descarga falla, baja el modelo manualmente de `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task` y guárdalo en `public/models/hand_landmarker.task`.
+* No agregues esos archivos a git (están en `.gitignore`). Si actualizas `@mediapipe/tasks-vision`, vuelve a correr `npm run setup:hand-tracking` para que el WASM coincida con la versión.
+* La cámara solo se enciende al pulsar **Activar cámara**. Requiere `https` o `localhost` y permiso del navegador.
+
 ---
 
 ## 💡 ¿Cómo proponer ideas o reportar errores? (Gestión de Issues)

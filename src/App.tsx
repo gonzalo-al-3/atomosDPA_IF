@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MoleculeViewer from './components/Scene/MoleculeViewer';
+import HandTrackingPanel from './components/HandTracking/HandTrackingPanel';
 
 const BASE = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
@@ -72,6 +73,7 @@ export default function App() {
             modelUrl={selectedModel.modelUrl} 
             hasAnimation={selectedModel.hasAnimation} 
           />
+          <HandTrackingPanel />
         </main>
 
         {/* Panel Lateral de Contenido */}

@@ -7,6 +7,7 @@ vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="r3f-canvas">{children}</div>
   ),
+  useFrame: vi.fn(),
 }));
 
 // 2. Mock de Drei (Hooks y Componentes 3D) para no requerir contexto WebGL en JSDOM
