@@ -19,7 +19,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - React 19 + TypeScript + Vite; TS config is split into `tsconfig.app.json` (src) and `tsconfig.node.json` (vite config).
 - `vite.config.ts` sets `base: '/atomosDPA_IF/'` — must match the GitHub repo name, or deployed asset paths break. Account for it when referencing files in `public/` (use `import.meta.env.BASE_URL`, not absolute `/...`).
 - Deploy: pushing to `main` triggers `.github/workflows/deploy.yml` (Node 20, `npm ci`, `npm run build`, GitHub Pages). Keep `package-lock.json` in sync with `package.json`.
-- Hand tracking (branch `feat/hand-tracking`): uses `@mediapipe/tasks-vision`. The WASM runtime is self-hosted in `public/mediapipe-wasm/` and the model in `public/models/hand_landmarker.task` (no CDN), so load them via `BASE_URL`-prefixed paths. These are large binaries; the directories are currently untracked.
+- Hand tracking: `@mediapipe/tasks-vision`. Los assets (`public/mediapipe-wasm/` y `public/models/hand_landmarker.task`) NO están en git; los genera `npm run setup:hand-tracking` (copia el WASM desde `node_modules` y descarga el modelo si falta). Corre solo antes de `dev` y `build` (`predev`/`prebuild`), también en CI. Se sirven desde `public/` con `BASE_URL`, nunca desde CDN en runtime.
+- Arquitectura de gestos: `useHandTracking` (cámara + detección) → `handStore` (store mutable fuera de React) → `handProcessing` (One Euro, pinch, `rotationDelta`/`zoomLevel`) → `HandGestureGroup` los lee en `useFrame`. Los valores a calibrar están como constantes al inicio de `handProcessing.ts`.
 - Styling is inline styles in `App.tsx` plus `App.css`/`index.css` (`index.css.bkp` is a backup, ignore it).
 
 ## Reglas no negociables
