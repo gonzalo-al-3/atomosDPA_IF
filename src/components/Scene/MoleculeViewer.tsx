@@ -2,6 +2,11 @@ import { useRef, useEffect, Suspense, Component, type ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF, useAnimations, Center, Float } from '@react-three/drei';
 import * as THREE from 'three';
+import HandGestureGroup from './HandGestureGroup';
+
+const BASE = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 
 interface MoleculeViewerProps {
   modelUrl?: string;
@@ -123,7 +128,7 @@ function LoadingFallback() {
 }
 
 export default function MoleculeViewer({ 
-  modelUrl = '/models/aspirin.glb', 
+  modelUrl = `${BASE}models/aspirin.glb`, 
   hasAnimation = false 
 }: MoleculeViewerProps) {
   return (
@@ -139,16 +144,20 @@ export default function MoleculeViewer({
 
         {/* Carga diferida con Suspense */}
         <Suspense fallback={<LoadingFallback />}>
-          <Center>
-            <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.4}>
-              <CanvasErrorBoundary modelUrl={modelUrl} fallback={<ProceduralMolecule />}>
-                <Model modelUrl={modelUrl} hasAnimation={hasAnimation} />
-              </CanvasErrorBoundary>
-            </Float>
-          </Center>
+          <HandGestureGroup>
+            <Center>
+              <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.4}>
+                <CanvasErrorBoundary modelUrl={modelUrl} fallback={<ProceduralMolecule />}>
+                  <Model modelUrl={modelUrl} hasAnimation={hasAnimation} />
+                </CanvasErrorBoundary>
+              </Float>
+            </Center>
+          </HandGestureGroup>
         </Suspense>
 
-        {/* Controles de cámara táctil / ratón */}
+        {/* Controles de cámara táctil / ratón.
+            TODO: deshabilitar (enabled={false}) cuando la cámara de gestos esté activa, para que
+            ratón y mano no compitan. Por ahora conviven con HandGestureGroup. */}
         <OrbitControls makeDefault enablePan enableZoom enableRotate />
       </Canvas>
     </div>

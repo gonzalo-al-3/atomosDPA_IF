@@ -27,3 +27,5 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Modelo y WASM de MediaPipe se sirven desde public/, nunca desde CDN.
 - Rutas de assets con import.meta.env.BASE_URL (deploy en subdirectorio de GitHub Pages).
 - La cámara se activa solo con un botón explícito, nunca al cargar la página.
+- Los landmarks de mano NO van en estado de React: se escriben en un ref/store transitorio y el visor los lee dentro de su `useFrame`.
+- Al apagar la cámara, detener los tracks del `MediaStream` (el LED debe apagarse) y llamar `handLandmarker.close()` al desmontar.
