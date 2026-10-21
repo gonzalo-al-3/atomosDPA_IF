@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import MoleculeViewer from './components/Scene/MoleculeViewer';
 import HandTrackingPanel from './components/HandTracking/HandTrackingPanel';
+import ARButton from './components/UI/ARButton';
 
 const BASE = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
@@ -32,7 +33,7 @@ const INITIAL_CATALOG: AtomicSystem[] = [
     category: 'Superficie / Material', 
     chemicalFormula: 'C',
     description: 'Estructura bidimensional de átomos de carbono dispuestos en una red hexagonal tipo panal de abeja.',
-    modelUrl: '/models/graphene.glb',
+    modelUrl: `${BASE}models/graphene.glb`,
     hasAnimation: false 
   },
 ];
@@ -74,6 +75,10 @@ export default function App() {
             hasAnimation={selectedModel.hasAnimation} 
           />
           <HandTrackingPanel />
+          <ARButton 
+            modelUrl={selectedModel.modelUrl} 
+            modelName={selectedModel.name} 
+          />
         </main>
 
         {/* Panel Lateral de Contenido */}
