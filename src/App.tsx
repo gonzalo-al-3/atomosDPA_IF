@@ -1,14 +1,10 @@
 import { useState } from 'react';
-
-// Example pre-selected systems for your event
-const MOLECULE_DATA = [
-  { id: 'aspirin', name: 'Aspirin Molecule', type: 'Small Molecule', desc: 'Analgesic compound showing molecular vibrations.' },
-  { id: 'graphene', name: 'Graphene Layer', type: 'Surface / Material', desc: 'Single layer of carbon atoms arranged in a 2D honeycomb lattice.' },
-  { id: 'gold-np', name: 'Gold Nanoparticle', type: 'Nanoparticle', desc: 'Faceted fcc crystal structure showing surface energy properties.' },
-];
+// 1. IMPORTAMOS TU ARCHIVO JSON (asegúrate de que la ruta sea correcta)
+import modelsData from './data/modelsData.json';
 
 export default function App() {
-  const [selectedModel, setSelectedModel] = useState(MOLECULE_DATA[0]);
+  // 2. INICIALIZAMOS EL ESTADO CON EL PRIMER MODELO DE TU JSON
+  const [selectedModel, setSelectedModel] = useState(modelsData[0]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
@@ -40,6 +36,10 @@ export default function App() {
           <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b', border: '2px dashed #334155', borderRadius: '12px' }}>
             <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: '#e2e8f0' }}>3D / AR Viewport</p>
             <p style={{ fontSize: '0.9rem' }}>Currently showing: <strong>{selectedModel.name}</strong></p>
+            {/* Mostramos la URL para que compruebes que está conectado */}
+            <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: '#38bdf8' }}>
+              Ruta: {selectedModel.modelUrl}
+            </p>
             <p style={{ fontSize: '0.8rem', marginTop: '1rem' }}>(React Three Fiber / model-viewer will render here)</p>
           </div>
         </main>
@@ -56,8 +56,12 @@ export default function App() {
         }}>
           <div>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: '#38bdf8' }}>Select Model</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {MOLECULE_DATA.map((item) => (
+            
+            {/* 3. AGREGAMOS UN SCROLL POR SI LA LISTA ES MUY LARGA (tienes 13 modelos) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              
+              {/* 4. MAPEAMOS SOBRE LOS DATOS DE TU JSON */}
+              {modelsData.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setSelectedModel(item)}
@@ -73,7 +77,7 @@ export default function App() {
                   }}
                 >
                   <div style={{ fontWeight: 500 }}>{item.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{item.type}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{item.category}</div>
                 </button>
               ))}
             </div>
@@ -81,11 +85,14 @@ export default function App() {
 
           <div style={{ borderTop: '1px solid #334155', paddingTop: '1rem' }}>
             <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: '#f8fafc' }}>{selectedModel.name}</h3>
-            <p style={{ fontSize: '0.875rem', color: '#cbd5e1', lineHeight: '1.4' }}>{selectedModel.desc}</p>
+            {/* 5. AÑADIMOS LA FÓRMULA QUÍMICA Y LA DESCRIPCIÓN */}
+            <p style={{ fontSize: '0.85rem', color: '#38bdf8', marginBottom: '0.5rem' }}>
+              Fórmula: {selectedModel.chemicalFormula}
+            </p>
+            <p style={{ fontSize: '0.875rem', color: '#cbd5e1', lineHeight: '1.4' }}>{selectedModel.description}</p>
           </div>
         </aside>
       </div>
     </div>
   );
 }
-

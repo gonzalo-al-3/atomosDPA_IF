@@ -1,0 +1,119 @@
+[
+  {
+    "id": "adn",
+    "name": "ADN (Doble Hélice)",
+    "category": "Biomoléculas",
+    "description": "La molécula que contiene las instrucciones genéticas para el desarrollo y funcionamiento de todos los organismos vivos. Su famosa estructura de doble hélice fue descubierta en 1953.",
+    "chemicalFormula": "No aplica (polímero)",
+    "modelUrl": "/models/adn.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "proteina_asm",
+    "name": "Esfingomielinasa Ácida Humana",
+    "category": "Biomoléculas",
+    "description": "Una enzima crucial en el cuerpo humano encargada de descomponer los lípidos. El modelo muestra su estructura tridimensional en forma de cintas.",
+    "chemicalFormula": "No aplica (proteína)",
+    "modelUrl": "/models/proteina_asm.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "cbn",
+    "name": "Nitruro de Boro Cúbico (CBN)",
+    "category": "Fragmentos Cristalinos",
+    "description": "El segundo material más duro de la naturaleza después del diamante. Su estructura cristalina cúbica le otorga propiedades increíbles para la industria.",
+    "chemicalFormula": "BN",
+    "modelUrl": "/models/cbn.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "fullereno",
+    "name": "Buckminsterfullereno (C60)",
+    "category": "Nanopartículas",
+    "description": "Una molécula de carbono con forma de balón de fútbol. Es una de las nanoestructuras más famosas y prometedoras en el campo de la nanotecnología.",
+    "chemicalFormula": "C60",
+    "modelUrl": "/models/fullereno.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "nanotubo",
+    "name": "Nanotubo de Carbono",
+    "category": "Nanopartículas",
+    "description": "Estructuras cilíndricas microscópicas de carbono con una resistencia y conductividad extraordinarias. Son el futuro de los materiales avanzados.",
+    "chemicalFormula": "C",
+    "modelUrl": "/models/nanotubo.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "aspirina",
+    "name": "Aspirina (Ácido Acetilsalicílico)",
+    "category": "Pequeñas Moléculas",
+    "description": "Uno de los medicamentos más consumidos del mundo. Tiene propiedades analgésicas, antipiréticas y antiinflamatorias.",
+    "chemicalFormula": "C9H8O4",
+    "modelUrl": "/models/aspirina.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "glucosa",
+    "name": "Beta-D-Glucosa",
+    "category": "Pequeñas Moléculas",
+    "description": "El azúcar principal que circula en la sangre y la principal fuente de energía para las células de nuestro cuerpo.",
+    "chemicalFormula": "C6H12O6",
+    "modelUrl": "/models/glucosa.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "cafeina",
+    "name": "Cafeína",
+    "category": "Pequeñas Moléculas",
+    "description": "Un alcaloide estimulante del sistema nervioso central. Bloquea los receptores de adenosina en el cerebro, evitando la sensación de somnolencia.",
+    "chemicalFormula": "C8H10N4O2",
+    "modelUrl": "/models/cafeina.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "co2",
+    "name": "Dióxido de Carbono (CO2)",
+    "category": "Pequeñas Moléculas",
+    "description": "Un gas incoloro esencial para la vida en la Tierra (las plantas lo usan para la fotosíntesis), pero también uno de los principales gases de efecto invernadero.",
+    "chemicalFormula": "CO2",
+    "modelUrl": "/models/co2.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "dopamina",
+    "name": "Dopamina",
+    "category": "Pequeñas Moléculas",
+    "description": "Un neurotransmisor clave en el sistema nervioso central. Está asociado con la motivación, el sistema de recompensa y el control motor.",
+    "chemicalFormula": "C8H11NO2",
+    "modelUrl": "/models/dopamina.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "paracetamol",
+    "name": "Paracetamol",
+    "category": "Pequeñas Moléculas",
+    "description": "Un medicamento ampliamente utilizado para aliviar el dolor leve a moderado y reducir la fiebre. Es el principio activo de marcas comerciales muy conocidas.",
+    "chemicalFormula": "C8H9NO2",
+    "modelUrl": "/models/paracetamol.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "serotonina",
+    "name": "Serotonina",
+    "category": "Pequeñas Moléculas",
+    "description": "Conocida popularmente como la 'hormona de la felicidad'. Es un neurotransmisor que regula el estado de ánimo, el sueño y el apetito.",
+    "chemicalFormula": "C10H12N2O",
+    "modelUrl": "/models/serotonina.glb",
+    "hasAnimation": false
+  },
+  {
+    "id": "materiales",
+    "name": "Superficies y Materiales (PBR)",
+    "category": "Superficies/Materiales",
+    "description": "Una matriz visual que muestra cómo interactúan los materiales con la luz. Desde metales brillantes y pulidos hasta superficies rugosas y plásticos mates.",
+    "chemicalFormula": "No aplica",
+    "modelUrl": "/models/materiales.glb",
+    "hasAnimation": false
+  }
+]
