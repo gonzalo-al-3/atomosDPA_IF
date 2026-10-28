@@ -1,95 +1,130 @@
 import { useState } from 'react';
-// 1. IMPORTAMOS TU ARCHIVO JSON (asegúrate de que la ruta sea correcta)
 import modelsData from './data/modelsData.json';
+import MoleculeViewer from './components/Scene/MoleculeViewer';
+import HandTrackingPanel from './components/HandTracking/HandTrackingPanel';
+import ARButton from './components/UI/ARButton';
+
+interface AtomicSystem {
+  id: string;
+  name: string;
+  category: string;
+  chemicalFormula: string;
+  description: string;
+  modelUrl: string;
+  hasAnimation: boolean;
+}
 
 export default function App() {
-  // 2. INICIALIZAMOS EL ESTADO CON EL PRIMER MODELO DE TU JSON
-  const [selectedModel, setSelectedModel] = useState(modelsData[0]);
+  // Usamos tu JSON para inicializar el catálogo
+  const [selectedModel, setSelectedModel] = useState<AtomicSystem>(modelsData[0]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
-      {/* Header */}
-      <header style={{
-        padding: '1rem 1.5rem',
-        backgroundColor: '#1e293b',
-        borderBottom: '1px solid #334155',
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', fontFamily: 'system-ui, sans-serif' }}>
+      {/* Encabezado Superior (Mantenemos el de tus compañeros) */}
+      <header style={{ 
+        padding: '0.85rem 1.5rem', 
+        backgroundColor: '#0f172a', 
+        borderBottom: '1px solid #1e293b',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        color: '#f8fafc'
       }}>
-        <h1 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Interactive Molecular AR Explorer</h1>
-        <span style={{ fontSize: '0.875rem', color: '#94a3b8' }}>Science Event Presentation — Nov 13</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <h1 style={{ fontSize: '1.2rem', fontWeight: 600, margin: 0, color: '#38bdf8' }}>
+            ¡Átomos a la vista!
+          </h1>
+          <span style={{ fontSize: '0.75rem', backgroundColor: '#0369a1', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+            3D Viewer
+          </span>
+        </div>
+        <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+          IF-UNAM — Día de Puertas Abiertas 2026
+        </span>
       </header>
 
-      {/* Main Workspace */}
+      {/* Cuerpo Principal */}
       <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
-
-        {/* Left Side: 3D Viewport Placeholder */}
-        <main style={{
-          flex: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#020617',
-          position: 'relative'
-        }}>
-          <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b', border: '2px dashed #334155', borderRadius: '12px' }}>
-            <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: '#e2e8f0' }}>3D / AR Viewport</p>
-            <p style={{ fontSize: '0.9rem' }}>Currently showing: <strong>{selectedModel.name}</strong></p>
-            {/* Mostramos la URL para que compruebes que está conectado */}
-            <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: '#38bdf8' }}>
-              Ruta: {selectedModel.modelUrl}
-            </p>
-            <p style={{ fontSize: '0.8rem', marginTop: '1rem' }}>(React Three Fiber / model-viewer will render here)</p>
-          </div>
+        
+        {/* Lienzo 3D (Mantenemos el de tus compañeros) */}
+        <main style={{ flex: 1, position: 'relative' }}>
+          <MoleculeViewer 
+            modelUrl={selectedModel.modelUrl} 
+            hasAnimation={selectedModel.hasAnimation} 
+          />
+          <HandTrackingPanel />
+          <ARButton 
+            modelUrl={selectedModel.modelUrl} 
+            modelName={selectedModel.name} 
+          />
         </main>
 
-        {/* Right Side: Educational Info Panel */}
-        <aside style={{
-          width: '320px',
-          backgroundColor: '#1e293b',
-          borderLeft: '1px solid #334155',
-          padding: '1.5rem',
+        {/* Panel Lateral de Contenido (Mezclamos el diseño de ellos con tu lista) */}
+        <aside style={{ 
+          width: '320px', 
+          backgroundColor: '#0f172a', 
+          borderLeft: '1px solid #1e293b', 
+          padding: '1.25rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.5rem'
+          gap: '1.25rem',
+          color: '#f8fafc',
+          boxSizing: 'border-box'
         }}>
           <div>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: '#38bdf8' }}>Select Model</h2>
+            <h2 style={{ fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem', color: '#94a3b8' }}>
+              Catálogo de Sistemas
+            </h2>
             
-            {/* 3. AGREGAMOS UN SCROLL POR SI LA LISTA ES MUY LARGA (tienes 13 modelos) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
-              
-              {/* 4. MAPEAMOS SOBRE LOS DATOS DE TU JSON */}
-              {modelsData.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setSelectedModel(item)}
-                  style={{
-                    padding: '0.75rem',
-                    borderRadius: '6px',
-                    border: '1px solid',
-                    borderColor: selectedModel.id === item.id ? '#38bdf8' : '#334155',
-                    backgroundColor: selectedModel.id === item.id ? '#0f172a' : '#1e293b',
-                    color: '#f8fafc',
-                    textAlign: 'left',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <div style={{ fontWeight: 500 }}>{item.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{item.category}</div>
-                </button>
-              ))}
+            {/* Aquí está tu lista dinámica con scroll añadido para los 13 modelos */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '450px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              {modelsData.map((item) => {
+                const isSelected = selectedModel.id === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedModel(item)}
+                    style={{
+                      padding: '0.75rem',
+                      borderRadius: '6px',
+                      border: '1px solid',
+                      borderColor: isSelected ? '#38bdf8' : '#1e293b',
+                      backgroundColor: isSelected ? '#1e293b' : '#020617',
+                      color: '#f8fafc',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: isSelected ? '#38bdf8' : '#f8fafc' }}>
+                      {item.name}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.2rem' }}>
+                      {item.category}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid #334155', paddingTop: '1rem' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: '#f8fafc' }}>{selectedModel.name}</h3>
-            {/* 5. AÑADIMOS LA FÓRMULA QUÍMICA Y LA DESCRIPCIÓN */}
-            <p style={{ fontSize: '0.85rem', color: '#38bdf8', marginBottom: '0.5rem' }}>
+          {/* Información Detallada (Mantenemos el diseño de tus compañeros) */}
+          <div style={{ 
+            borderTop: '1px solid #1e293b', 
+            paddingTop: '1rem', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '0.5rem' 
+          }}>
+            <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 600 }}>
               Fórmula: {selectedModel.chemicalFormula}
+            </span>
+            <h3 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 600 }}>
+              {selectedModel.name}
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: '1.4', margin: 0 }}>
+              {selectedModel.description}
             </p>
-            <p style={{ fontSize: '0.875rem', color: '#cbd5e1', lineHeight: '1.4' }}>{selectedModel.description}</p>
           </div>
         </aside>
       </div>
