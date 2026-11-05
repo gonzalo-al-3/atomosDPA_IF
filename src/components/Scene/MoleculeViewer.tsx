@@ -3,6 +3,8 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF, useAnimations, Center, Float } from '@react-three/drei';
 import * as THREE from 'three';
 import HandGestureGroup from './HandGestureGroup';
+import FpsProbe from '../../debug/FpsProbe';
+import { DEBUG } from '../../debug/debugFlag';
 
 const BASE = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
@@ -11,6 +13,8 @@ const BASE = import.meta.env.BASE_URL.endsWith('/')
 interface MoleculeViewerProps {
   modelUrl?: string;
   hasAnimation?: boolean;
+  /** Con gestos activos el mouse y el touch no controlan el modelo. */
+  gesturesActive?: boolean;
 }
 
 interface CanvasErrorBoundaryProps {
@@ -129,7 +133,8 @@ function LoadingFallback() {
 
 export default function MoleculeViewer({ 
   modelUrl = `${BASE}models/aspirin.glb`, 
-  hasAnimation = false 
+  hasAnimation = false,
+  gesturesActive = false,
 }: MoleculeViewerProps) {
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -137,6 +142,8 @@ export default function MoleculeViewer({
         camera={{ position: [0, 0, 5], fov: 45 }}
         style={{ background: '#020617' }}
       >
+        {DEBUG && <FpsProbe />}
+
         {/* Configuración de Iluminación */}
         <ambientLight intensity={0.9} />
         <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
@@ -155,10 +162,9 @@ export default function MoleculeViewer({
           </HandGestureGroup>
         </Suspense>
 
-        {/* Controles de cámara táctil / ratón.
-            TODO: deshabilitar (enabled={false}) cuando la cámara de gestos esté activa, para que
-            ratón y mano no compitan. Por ahora conviven con HandGestureGroup. */}
-        <OrbitControls makeDefault enablePan enableZoom enableRotate />
+        {/* Controles de cámara táctil / ratón. Se desactivan (sin desmontar) mientras hay gestos,
+            para que mano y mouse no compitan; al reactivarlos la cámara sigue donde estaba. */}
+        <OrbitControls makeDefault enabled={!gesturesActive} enablePan enableZoom enableRotate />
       </Canvas>
     </div>
   );

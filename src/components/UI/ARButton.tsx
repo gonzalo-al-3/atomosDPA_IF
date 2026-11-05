@@ -8,6 +8,8 @@ interface ModelViewerElement extends HTMLElement {
 }
 
 declare module 'react' {
+  // Aumentar el namespace JSX de React solo puede hacerse con sintaxis de namespace.
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       'model-viewer': React.DetailedHTMLProps<
