@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 // Declaración para que TypeScript reconozca el Web Component <model-viewer> en JSX
 declare module 'react' {
+  // Aumentar el namespace JSX de React solo puede hacerse con sintaxis de namespace.
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       'model-viewer': React.DetailedHTMLProps<

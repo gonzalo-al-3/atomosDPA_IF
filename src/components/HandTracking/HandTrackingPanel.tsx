@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { useHandTracking } from '../../hooks/useHandTracking';
+import { useEffect, useRef } from 'react';
 import { handStore, LANDMARK_COUNT } from '../../hooks/handStore';
 
 const W = 320;
@@ -15,46 +14,27 @@ const CONNECTIONS: [number, number][] = [
   [0, 17],
 ];
 
-const btn = (bg: string): React.CSSProperties => ({
-  flex: 1,
-  padding: '0.45rem 0.6rem',
-  borderRadius: '6px',
-  border: 'none',
-  backgroundColor: bg,
-  color: '#f8fafc',
-  fontSize: '0.8rem',
-  cursor: 'pointer',
-});
+interface HandTrackingPanelProps {
+  /** Ref callback del hook: conecta este <video> al stream ya abierto. */
+  attachPreview: (video: HTMLVideoElement | null) => void;
+  starting: boolean;
+  /** Cierra el recuadro (pasa a modo "gestos", no apaga). */
+  onClose: () => void;
+}
 
-export default function HandTrackingPanel() {
-  const { status, error, videoRef, start, stop } = useHandTracking();
+/** Recuadro flotante con la imagen de la cámara y los 21 landmarks (modo "Gestos + cámara"). */
+export default function HandTrackingPanel({ attachPreview, starting, onClose }: HandTrackingPanelProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const readoutRef = useRef<HTMLPreElement>(null);
-  const [debug, setDebug] = useState(import.meta.env.DEV);
-  const active = status === 'on';
 
-  // Dibujo del overlay: bucle propio que lee el store, sin pasar por el estado de React.
+  // Dibujo de los landmarks: bucle propio que lee el store, sin pasar por el estado de React.
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx || !active || !debug) {
-      ctx?.clearRect(0, 0, W, H);
-      return;
-    }
+    const ctx = canvasRef.current?.getContext('2d');
+    if (!ctx) return;
     let raf = 0;
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
-      const lm = handStore.smoothLandmarks;
-      const raw = handStore.landmarks;
       if (handStore.present) {
-        // Landmarks crudos: anillos grises grandes, visibles aunque el punto suavizado quede encima.
-        ctx.strokeStyle = 'rgba(203, 213, 225, 0.9)';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < LANDMARK_COUNT; i++) {
-          ctx.beginPath();
-          ctx.arc(raw[i * 3] * W, raw[i * 3 + 1] * H, 6, 0, Math.PI * 2);
-          ctx.stroke();
-        }
+        const lm = handStore.smoothLandmarks;
         ctx.strokeStyle = '#38bdf8';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -70,29 +50,16 @@ export default function HandTrackingPanel() {
           ctx.fill();
         }
       }
-      const out = readoutRef.current;
-      if (out) {
-        const h = handStore;
-        out.textContent = h.present
-          ? `fps det  ${h.detectionFps.toFixed(1)}\n` +
-            `palma    x ${h.palmX.toFixed(2)}  y ${h.palmY.toFixed(2)}\n` +
-            `tamaño   ${h.handSize.toFixed(3)}\n` +
-            `pinch    ${h.pinchRatio.toFixed(2)}  ${h.pinching ? 'CERRADO' : 'abierto'}\n` +
-            `rotDelta x ${h.rotationDelta.x.toFixed(2)}  y ${h.rotationDelta.y.toFixed(2)} rad/s\n` +
-            `zoom     ${h.zoomLevel.toFixed(2)}`
-          : `fps det  ${h.detectionFps.toFixed(1)}\nsin mano`;
-      }
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [active, debug]);
-
-  const label =
-    status === 'loading' ? 'Cargando…' : status === 'error' ? (error ?? 'Error') : null;
+  }, []);
 
   return (
     <div
+      role="region"
+      aria-label="Imagen de la cámara"
       style={{
         position: 'absolute',
         right: '1rem',
@@ -108,6 +75,29 @@ export default function HandTrackingPanel() {
         boxSizing: 'border-box',
       }}
     >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+        <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+          {starting ? 'Iniciando cámara…' : 'Cámara activa — la imagen no sale de este equipo'}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar recuadro de la cámara (los gestos siguen activos)"
+          title="Cerrar recuadro (los gestos siguen activos)"
+          style={{
+            border: 'none',
+            background: 'transparent',
+            color: '#94a3b8',
+            fontSize: '1.1rem',
+            lineHeight: 1,
+            cursor: 'pointer',
+            padding: '0 0.25rem',
+          }}
+        >
+          ×
+        </button>
+      </div>
+
       <div
         style={{
           position: 'relative',
@@ -120,10 +110,11 @@ export default function HandTrackingPanel() {
         }}
       >
         <video
-          ref={videoRef}
+          ref={attachPreview}
           muted
           playsInline
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: active ? 'block' : 'none' }}
+          autoPlay
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
         />
         <canvas
           ref={canvasRef}
@@ -132,40 +123,6 @@ export default function HandTrackingPanel() {
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         />
       </div>
-
-      {active && debug && (
-        <pre
-          ref={readoutRef}
-          style={{ margin: '0.4rem 0 0', fontSize: '0.7rem', lineHeight: 1.35, color: '#a5f3fc', whiteSpace: 'pre' }}
-        />
-      )}
-
-      <div style={{ fontSize: '0.75rem', color: status === 'error' ? '#f87171' : '#94a3b8', margin: '0.4rem 0' }}>
-        {label ?? (active ? 'Cámara activa' : 'Cámara apagada — se activa solo con el botón')}
-      </div>
-
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <button
-          onClick={start}
-          disabled={status === 'loading' || active}
-          style={{ ...btn('#0369a1'), opacity: status === 'loading' || active ? 0.5 : 1 }}
-        >
-          Activar cámara
-        </button>
-        <button
-          onClick={stop}
-          disabled={status === 'off'}
-          style={{ ...btn('#475569'), opacity: status === 'off' ? 0.5 : 1 }}
-        >
-          Desactivar
-        </button>
-      </div>
-
-      {import.meta.env.DEV && (
-        <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.4rem' }}>
-          <input type="checkbox" checked={debug} onChange={(e) => setDebug(e.target.checked)} /> Mostrar landmarks
-        </label>
-      )}
     </div>
   );
 }

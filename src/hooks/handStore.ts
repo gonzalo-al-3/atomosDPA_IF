@@ -19,18 +19,26 @@ export interface HandStore {
   palmY: number;
   /** Tamaño de la mano: muñeca (0) → base del dedo medio (9), en unidades de altura de imagen. */
   handSize: number;
-  /** Distancia pulgar–índice / handSize. ~0.1 en contacto, ~1 mano abierta. */
+  /** Distancia pulgar–índice / tamaño de la mano. ~0.1 en contacto, ~1 mano abierta. */
   pinchRatio: number;
-  /** Estado de pellizco con histéresis. */
+  /** Agarre: pellizco con histéresis. El modelo solo responde mientras es true. */
   pinching: boolean;
 
+  /** Se incrementa en cada agarre nuevo; el visor lo usa para guardar la rotación base. */
+  grabId: number;
+  /** Palma y tamaño de la mano al empezar el agarre (referencia de calibración). */
+  grabStartX: number;
+  grabStartY: number;
+  grabRefSize: number;
+  /** handSize / grabRefSize durante el agarre (>1 = mano más cerca). */
+  sizeRatio: number;
+
   /**
-   * Velocidad angular deseada (rad/s), proporcional al desplazamiento de la palma
-   * respecto al centro de la imagen (con zona muerta). x: giro sobre el eje X (palma arriba/abajo),
-   * y: giro sobre el eje Y (palma izquierda/derecha). Es 0 sin mano o mientras se pellizca.
+   * Giro (rad) acumulado desde el inicio del agarre por arrastre de la palma.
+   * x: sobre el eje X (palma arriba/abajo), y: sobre el eje Y (palma izquierda/derecha). 0 sin agarre.
    */
   rotationDelta: { x: number; y: number };
-  /** Escala objetivo (ZOOM_MIN..ZOOM_MAX). Se conserva al perder la mano. */
+  /** Escala objetivo (ZOOM_MIN..ZOOM_MAX). Se conserva al soltar o perder la mano. */
   zoomLevel: number;
 }
 
@@ -45,6 +53,11 @@ export const handStore: HandStore = {
   handSize: 0,
   pinchRatio: 1,
   pinching: false,
+  grabId: 0,
+  grabStartX: 0.5,
+  grabStartY: 0.5,
+  grabRefSize: 0,
+  sizeRatio: 1,
   rotationDelta: { x: 0, y: 0 },
   zoomLevel: 1,
 };
@@ -60,6 +73,10 @@ export function resetHandStore() {
   handStore.handSize = 0;
   handStore.pinchRatio = 1;
   handStore.pinching = false;
+  handStore.grabStartX = 0.5;
+  handStore.grabStartY = 0.5;
+  handStore.grabRefSize = 0;
+  handStore.sizeRatio = 1;
   handStore.rotationDelta.x = 0;
   handStore.rotationDelta.y = 0;
   handStore.zoomLevel = 1;

@@ -1,8 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import modelsData from './data/modelsData.json';
 import MoleculeViewer from './components/Scene/MoleculeViewer';
 import HandTrackingPanel from './components/HandTracking/HandTrackingPanel';
 import ARButton from './components/UI/ARButton';
+import GestureToolbar from './components/UI/GestureToolbar';
+import GestureErrorBanner from './components/HandTracking/GestureErrorBanner';
+import { useHandTracking } from './hooks/useHandTracking';
+import { isGesturesActive } from './hooks/handMode';
+import PerfOverlay from './debug/PerfOverlay';
+import { DEBUG } from './debug/debugFlag';
 
 const BASE = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
@@ -29,6 +35,20 @@ export default function App() {
   }));
   //const [selectedModel, setSelectedModel] = useState<AtomicSystem>(modelsData[0]);
   const [selectedModel, setSelectedModel] = useState(catalog[0]);
+  // Control por gestos: en estado de React solo el modo y los errores (los landmarks van en handStore).
+  const hand = useHandTracking();
+  const gesturesActive = isGesturesActive(hand.mode);
+  const { turnOff } = hand;
+
+  // Esc: salida de emergencia que apaga los gestos (y devuelve el mouse).
+  useEffect(() => {
+    if (!gesturesActive) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') turnOff();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [gesturesActive, turnOff]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', fontFamily: 'system-ui, sans-serif' }}>
@@ -50,6 +70,7 @@ export default function App() {
             3D Viewer
           </span>
         </div>
+        <GestureToolbar mode={hand.mode} busy={hand.starting} onPress={hand.press} />
         <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
           IF-UNAM — Día de Puertas Abiertas 2026
         </span>
@@ -63,8 +84,17 @@ export default function App() {
           <MoleculeViewer 
             modelUrl={selectedModel.modelUrl} 
             hasAnimation={selectedModel.hasAnimation} 
+            gesturesActive={gesturesActive}
           />
-          <HandTrackingPanel />
+          {hand.mode === 'gestures+camera' && (
+            <HandTrackingPanel
+              attachPreview={hand.attachPreview}
+              starting={hand.starting}
+              onClose={hand.closePreview}
+            />
+          )}
+          {hand.error && <GestureErrorBanner message={hand.error} onDismiss={hand.dismissError} />}
+          {DEBUG && <PerfOverlay />}
           <ARButton 
             modelUrl={selectedModel.modelUrl} 
             modelName={selectedModel.name} 
