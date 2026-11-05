@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 
-// Declaración para que TypeScript reconozca el Web Component <model-viewer> en JSX
+interface ModelViewerElement extends HTMLElement {
+  activateAR: () => Promise<void>;
+  toBlob: (options?: { idealAspect?: boolean }) => Promise<Blob>;
+  canActivateAR?: boolean;
+  scale: string;
+}
+
 declare module 'react' {
   // Aumentar el namespace JSX de React solo puede hacerse con sintaxis de namespace.
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -14,11 +20,16 @@ declare module 'react' {
           'ar-modes'?: string;
           'ar-placement'?: 'floor' | 'wall';
           'ar-scale'?: 'auto' | 'fixed';
+          scale?: string;
           'shadow-intensity'?: string | number;
           'camera-controls'?: boolean;
+          'disable-pan'?: boolean;
           'auto-rotate'?: boolean;
           autoplay?: boolean;
+          loading?: 'auto' | 'lazy' | 'eager';
+          reveal?: 'auto' | 'manual';
           'touch-action'?: string;
+          ref?: React.Ref<ModelViewerElement>;
         },
         HTMLElement
       >;
@@ -31,50 +42,266 @@ interface ARButtonProps {
   modelName?: string;
 }
 
+const SCALE_PRESETS = [
+  { label: 'Compacto (~15 cm)', short: '15 cm', value: '0.035 0.035 0.035' },
+  { label: 'Mesa (~25 cm)', short: '25 cm', value: '0.06 0.06 0.06' },
+  { label: 'Mediano (~45 cm)', short: '45 cm', value: '0.12 0.12 0.12' },
+];
+
 export default function ARButton({
   modelUrl,
   modelName = 'Sistema Atómico',
 }: ARButtonProps) {
   const [isARSupportedDevice, setIsARSupportedDevice] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false);
+  const [selectedScale, setSelectedScale] = useState<string>(SCALE_PRESETS[1].value);
+  const [allowPinchScale, setAllowPinchScale] = useState<boolean>(true);
+  const [isInARSession, setIsInARSession] = useState<boolean>(false);
+  const [hideARHudForPhoto, setHideARHudForPhoto] = useState<boolean>(false);
+  const [photoToast, setPhotoToast] = useState<string | null>(null);
+  const [arError, setArError] = useState<string | null>(null);
+
+  const modelViewerRef = useRef<ModelViewerElement | null>(null);
+  // Guardamos en caché una captura válida del lienzo 3D antes de entrar a WebXR
+  // porque durante la sesión WebXR el navegador vacía el canvas estándar
+  const cachedModelBlobRef = useRef<Blob | null>(null);
+
+  const absoluteModelUrl = useMemo(() => {
+    if (!modelUrl) return '';
+    try {
+      return new URL(modelUrl, window.location.origin).href;
+    } catch {
+      return modelUrl;
+    }
+  }, [modelUrl]);
 
   useEffect(() => {
     const checkMobileCompatibility = () => {
-      const ua = navigator.userAgent || navigator.vendor || (window as unknown as { opera?: string }).opera || '';
+      const ua =
+        navigator.userAgent ||
+        navigator.vendor ||
+        (window as unknown as { opera?: string }).opera ||
+        '';
       const isAndroid = /android/i.test(ua);
       const isIOS =
         /iPad|iPhone|iPod/.test(ua) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       const hasXR = 'xr' in navigator;
 
-      // Se activa en dispositivos móviles (Android / iOS) o navegadores con soporte WebXR móvil
-      setIsARSupportedDevice(isAndroid || isIOS || (hasXR && navigator.maxTouchPoints > 0));
+      setIsARSupportedDevice(
+        isAndroid || isIOS || (hasXR && navigator.maxTouchPoints > 0)
+      );
     };
 
     checkMobileCompatibility();
   }, []);
 
-  // Criterio de aceptación: En computadoras de escritorio se oculta de forma transparente
+  // Compone una postal PNG con fondo oscuro y encabezado para que nunca salga transparente ni en blanco
+  const buildPostcardBlob = useCallback(
+    async (rawModelBlob: Blob): Promise<Blob> => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(rawModelBlob);
+
+        img.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          const width = Math.max(img.width, 800);
+          const height = Math.max(img.height, 800) + 110;
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+
+          if (!ctx) {
+            resolve(rawModelBlob);
+            return;
+          }
+
+          // Fondo oscuro institucional para que nunca se vea blanco/vacío
+          const gradient = ctx.createLinearGradient(0, 0, 0, height);
+          gradient.addColorStop(0, '#0f172a');
+          gradient.addColorStop(1, '#020617');
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, width, height);
+
+          // Dibujar la molécula centrada
+          const x = (width - img.width) / 2;
+          const y = (height - 110 - img.height) / 2;
+          ctx.drawImage(img, x, y);
+
+          // Pie de postal con nombre de la molécula y evento
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(0, height - 110, width, 110);
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(0, height - 110);
+          ctx.lineTo(width, height - 110);
+          ctx.stroke();
+
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = 'bold 28px system-ui, sans-serif';
+          ctx.fillText(modelName, 32, height - 60);
+
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '20px system-ui, sans-serif';
+          ctx.fillText('¡Átomos a la vista! — IF-UNAM', 32, height - 24);
+
+          canvas.toBlob((finalBlob) => {
+            if (finalBlob) resolve(finalBlob);
+            else reject(new Error('No se pudo generar la postal'));
+          }, 'image/png');
+        };
+
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(rawModelBlob);
+        };
+
+        img.src = objectUrl;
+      });
+    },
+    [modelName]
+  );
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    setIsModelLoaded(false);
+    setArError(null);
+    setIsInARSession(false);
+    cachedModelBlobRef.current = null;
+
+    const viewer = modelViewerRef.current;
+    if (!viewer) return;
+
+    const handleLoad = async () => {
+      setIsModelLoaded(true);
+      setArError(null);
+      // Pre-capturamos el modelo apenas carga en el modal (cuando el canvas WebGL sí tiene los píxeles)
+      setTimeout(async () => {
+        try {
+          if (modelViewerRef.current) {
+            const rawBlob = await modelViewerRef.current.toBlob({ idealAspect: true });
+            cachedModelBlobRef.current = rawBlob;
+          }
+        } catch {
+          // Ignorar silenciosamente si aún no está listo
+        }
+      }, 350);
+    };
+
+    const handleError = () => {
+      setArError(
+        'No se pudo cargar el archivo 3D (.glb). Verifica tu conexión e inténtalo de nuevo.'
+      );
+    };
+
+    const handleArStatus = (event: Event) => {
+      const customEvent = event as CustomEvent<{ status: string }>;
+      const status = customEvent.detail?.status;
+
+      if (status === 'session-started' || status === 'object-placed') {
+        setIsInARSession(true);
+      } else if (status === 'not-presenting') {
+        setIsInARSession(false);
+      } else if (status === 'failed') {
+        setIsInARSession(false);
+        setArError(
+          'La cámara RA no pudo iniciarse. Asegúrate de dar permisos de cámara a Google Chrome.'
+        );
+      }
+    };
+
+    viewer.addEventListener('load', handleLoad);
+    viewer.addEventListener('error', handleError);
+    viewer.addEventListener('ar-status', handleArStatus);
+
+    return () => {
+      viewer.removeEventListener('load', handleLoad);
+      viewer.removeEventListener('error', handleError);
+      viewer.removeEventListener('ar-status', handleArStatus);
+    };
+  }, [isModalOpen, absoluteModelUrl]);
+
+  const handleManualActivateAR = async () => {
+    const viewer = modelViewerRef.current;
+    if (!viewer) return;
+
+    try {
+      setArError(null);
+      // Actualizamos la captura en caché justo antes de lanzar la cámara WebXR
+      try {
+        cachedModelBlobRef.current = await viewer.toBlob({ idealAspect: true });
+      } catch {
+        // Continuar aunque falle la caché
+      }
+      await viewer.activateAR();
+    } catch {
+      setArError(
+        'No se pudo abrir la cámara. Prueba abriendo esta página directamente en Google Chrome (Android) o Safari (iOS).'
+      );
+    }
+  };
+
+  // Toma la foto del modelo (en el modal) o limpia la pantalla en WebXR para tomar captura con cámara
+  const handleSnapshot = async () => {
+    const viewer = modelViewerRef.current;
+    if (!viewer || !isModelLoaded) return;
+
+    // Si estamos dentro de la cámara WebXR, limpiamos todos los botones 4 segundos para que
+    // el usuario tome la captura real con la cámara de fondo sin estorbos en pantalla
+    if (isInARSession) {
+      setHideARHudForPhoto(true);
+      setPhotoToast('📸 Pantalla limpia por 4s: presiona Volumen Abajo + Encendido para capturar la cámara');
+      setTimeout(() => {
+        setPhotoToast(null);
+      }, 1800);
+      setTimeout(() => {
+        setHideARHudForPhoto(false);
+      }, 4500);
+      return;
+    }
+
+    try {
+      const rawBlob = await viewer.toBlob({ idealAspect: true });
+      cachedModelBlobRef.current = rawBlob;
+      const postcardBlob = await buildPostcardBlob(rawBlob);
+
+      const url = URL.createObjectURL(postcardBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${modelName.replace(/\s+/g, '_')}_IF_UNAM.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      setArError('No se pudo guardar la captura en este navegador.');
+    }
+  };
+
   if (!isARSupportedDevice || !modelUrl) {
     return null;
   }
 
   return (
     <>
-      {/* Botón flotante "Ver en RA" sobre el lienzo 3D */}
       <button
         type="button"
         onClick={() => setIsModalOpen(true)}
         aria-label="Ver en Realidad Aumentada"
         style={{
           position: 'absolute',
-          top: '1.5rem',
-          right: '1.5rem',
+          top: '1.25rem',
+          right: '1.25rem',
           zIndex: 50,
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
-          padding: '0.75rem 1.25rem',
+          padding: '0.7rem 1.2rem',
           backgroundColor: '#0284c7',
           color: '#f8fafc',
           border: '1px solid #38bdf8',
@@ -90,7 +317,6 @@ export default function ARButton({
         <span>Ver en RA</span>
       </button>
 
-      {/* Modal del Visor RA con instrucciones y <model-viewer> */}
       {isModalOpen && (
         <div
           role="dialog"
@@ -122,13 +348,13 @@ export default function ARButton({
               flexDirection: 'column',
             }}
           >
-            {/* Encabezado del Modal */}
+            {/* Encabezado */}
             <div
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '0.9rem 1.2rem',
+                padding: '0.85rem 1.2rem',
                 borderBottom: '1px solid #1e293b',
               }}
             >
@@ -155,62 +381,289 @@ export default function ARButton({
               </button>
             </div>
 
-            {/* Instrucción breve para el usuario */}
+            {/* Instrucciones táctiles claras */}
             <div
               style={{
-                padding: '0.85rem 1.2rem',
+                padding: '0.75rem 1.2rem',
                 backgroundColor: '#020617',
                 borderBottom: '1px solid #1e293b',
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 lineHeight: 1.45,
                 color: '#cbd5e1',
               }}
             >
-              <strong style={{ color: '#38bdf8' }}>Instrucciones:</strong> Mueve tu teléfono en círculos sobre la mesa para detectar la superficie y proyectar el modelo a escala fija.
+              <strong style={{ color: '#38bdf8' }}>Instrucciones:</strong> Mueve tu teléfono en círculos sobre la mesa para detectar la superficie. Una vez anclada: <strong>1 dedo</strong> la mueve por la mesa, <strong>2 dedos</strong> la giran o cambian su tamaño.
             </div>
 
-            {/* Contenedor de <model-viewer> con las propiedades requeridas */}
-            <div style={{ width: '100%', height: '340px', position: 'relative' }}>
+            {/* Controles de tamaño inicial y modo táctil */}
+            <div
+              style={{
+                padding: '0.6rem 1.2rem',
+                backgroundColor: '#0f172a',
+                borderBottom: '1px solid #1e293b',
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0.5rem',
+                fontSize: '0.76rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ color: '#94a3b8', fontWeight: 600 }}>Tamaño:</span>
+                {SCALE_PRESETS.map((preset) => {
+                  const active = selectedScale === preset.value;
+                  return (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => setSelectedScale(preset.value)}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '6px',
+                        border: '1px solid',
+                        borderColor: active ? '#38bdf8' : '#334155',
+                        backgroundColor: active ? '#0369a1' : '#1e293b',
+                        color: '#f8fafc',
+                        fontSize: '0.72rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {preset.short}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setAllowPinchScale((prev) => !prev)}
+                style={{
+                  padding: '0.25rem 0.55rem',
+                  borderRadius: '6px',
+                  border: '1px solid',
+                  borderColor: allowPinchScale ? '#10b981' : '#475569',
+                  backgroundColor: allowPinchScale ? 'rgba(16, 185, 129, 0.15)' : '#1e293b',
+                  color: allowPinchScale ? '#34d399' : '#94a3b8',
+                  fontSize: '0.72rem',
+                  cursor: 'pointer',
+                }}
+              >
+                {allowPinchScale ? '🖐️ Zoom táctil: Sí' : '🔒 Escala fija'}
+              </button>
+            </div>
+
+            {arError && (
+              <div
+                style={{
+                  padding: '0.65rem 1.2rem',
+                  backgroundColor: '#450a0a',
+                  borderBottom: '1px solid #dc2626',
+                  fontSize: '0.8rem',
+                  color: '#fca5a5',
+                }}
+              >
+                ⚠️ {arError}
+              </div>
+            )}
+
+            {/* Visor <model-viewer> con interfaz superpuesta (DOM Overlay) para WebXR */}
+            <div style={{ width: '100%', height: '280px', position: 'relative' }}>
               <model-viewer
-                src={modelUrl}
+                ref={modelViewerRef}
+                src={absoluteModelUrl}
                 alt={`Modelo 3D en Realidad Aumentada de ${modelName}`}
                 ar
-                ar-modes="scene-viewer quick-look webxr"
+                ar-modes="webxr scene-viewer quick-look"
                 ar-placement="floor"
-                ar-scale="fixed"
+                ar-scale={allowPinchScale ? 'auto' : 'fixed'}
+                scale={selectedScale}
                 shadow-intensity="1"
+                loading="eager"
+                reveal="auto"
                 camera-controls
                 auto-rotate
                 autoplay
-                touch-action="pan-y"
+                touch-action="none"
                 style={{
                   width: '100%',
                   height: '100%',
                   backgroundColor: '#0f172a',
                 }}
               >
+                <button slot="ar-button" style={{ display: 'none' }} />
+
+                {/* Controles flotantes visibles DENTRO de la cámara WebXR */}
+                {isInARSession && !hideARHudForPhoto && (
+                  <div
+                    style={{
+                      position: 'fixed',
+                      bottom: '28px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      zIndex: 9999,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '10px',
+                      width: '92%',
+                      maxWidth: '380px',
+                      pointerEvents: 'auto',
+                    }}
+                  >
+                    <div
+                      style={{
+                        backgroundColor: 'rgba(15, 23, 42, 0.82)',
+                        color: '#f8fafc',
+                        padding: '6px 12px',
+                        borderRadius: '9999px',
+                        fontSize: '12px',
+                        border: '1px solid rgba(56, 189, 248, 0.4)',
+                        textAlign: 'center',
+                      }}
+                    >
+                      👆 1 dedo: mover en mesa · ✌️ 2 dedos: girar / escalar
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        backgroundColor: 'rgba(2, 6, 23, 0.88)',
+                        padding: '8px 14px',
+                        borderRadius: '9999px',
+                        border: '1px solid #334155',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+                      }}
+                    >
+                      {SCALE_PRESETS.map((preset) => {
+                        const active = selectedScale === preset.value;
+                        return (
+                          <button
+                            key={preset.short}
+                            type="button"
+                            onClick={() => setSelectedScale(preset.value)}
+                            style={{
+                              padding: '6px 10px',
+                              borderRadius: '9999px',
+                              border: active ? '1px solid #38bdf8' : '1px solid #334155',
+                              backgroundColor: active ? '#0284c7' : '#1e293b',
+                              color: '#f8fafc',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {preset.short}
+                          </button>
+                        );
+                      })}
+
+                      {/* Botón para despejar pantalla 4s y tomar pantallazo limpio */}
+                      <button
+                        type="button"
+                        onClick={handleSnapshot}
+                        aria-label="Modo pantalla limpia para foto"
+                        style={{
+                          marginLeft: '4px',
+                          padding: '6px 12px',
+                          borderRadius: '9999px',
+                          backgroundColor: '#f8fafc',
+                          color: '#0f172a',
+                          border: '2px solid #38bdf8',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          boxShadow: '0 4px 12px rgba(56, 189, 248, 0.5)',
+                        }}
+                      >
+                        <span>📸</span>
+                        <span>Limpiar p/ Foto</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Aviso breve que desaparece antes de tomar la captura */}
+                {isInARSession && photoToast && (
+                  <div
+                    style={{
+                      position: 'fixed',
+                      top: '20px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      backgroundColor: 'rgba(2, 6, 23, 0.85)',
+                      color: '#38bdf8',
+                      padding: '8px 16px',
+                      borderRadius: '9999px',
+                      fontSize: '12px',
+                      textAlign: 'center',
+                      width: '85%',
+                      zIndex: 9999,
+                    }}
+                  >
+                    {photoToast}
+                  </div>
+                )}
+              </model-viewer>
+            </div>
+
+            {/* Pie del modal */}
+            <div
+              style={{
+                padding: '0.85rem 1.2rem',
+                borderTop: '1px solid #1e293b',
+                backgroundColor: '#020617',
+                display: 'flex',
+                gap: '0.6rem',
+                justifyContent: 'center',
+              }}
+            >
+              <button
+                type="button"
+                disabled={!isModelLoaded}
+                onClick={handleManualActivateAR}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem 1rem',
+                  backgroundColor: isModelLoaded ? '#0284c7' : '#334155',
+                  color: isModelLoaded ? '#f8fafc' : '#94a3b8',
+                  border: isModelLoaded ? '1px solid #38bdf8' : '1px solid #475569',
+                  borderRadius: '9999px',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  boxShadow: isModelLoaded ? '0 6px 16px rgba(2, 132, 199, 0.5)' : 'none',
+                  cursor: isModelLoaded ? 'pointer' : 'wait',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {isModelLoaded
+                  ? '📷 Activar cámara RA'
+                  : '⏳ Preparando modelo 3D...'}
+              </button>
+
+              {isModelLoaded && (
                 <button
-                  slot="ar-button"
+                  type="button"
+                  onClick={handleSnapshot}
+                  title="Guardar postal 3D del modelo"
                   style={{
-                    position: 'absolute',
-                    bottom: '16px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    padding: '0.75rem 1.5rem',
-                    backgroundColor: '#0284c7',
+                    padding: '0.75rem 1rem',
+                    backgroundColor: '#1e293b',
                     color: '#f8fafc',
-                    border: '1px solid #38bdf8',
+                    border: '1px solid #334155',
                     borderRadius: '9999px',
                     fontWeight: 600,
-                    fontSize: '0.9rem',
-                    boxShadow: '0 6px 16px rgba(2, 132, 199, 0.5)',
-                    whiteSpace: 'nowrap',
+                    fontSize: '0.85rem',
                     cursor: 'pointer',
                   }}
                 >
-                  Activar cámara RA
+                  📸 Postal 3D
                 </button>
-              </model-viewer>
+              )}
             </div>
           </div>
         </div>
