@@ -40,6 +40,7 @@ declare module 'react' {
 interface ARButtonProps {
   modelUrl: string;
   modelName?: string;
+  compact?: boolean;
 }
 
 const SCALE_PRESETS = [
@@ -51,6 +52,7 @@ const SCALE_PRESETS = [
 export default function ARButton({
   modelUrl,
   modelName = 'Sistema Atómico',
+  compact = false,
 }: ARButtonProps) {
   const [isARSupportedDevice, setIsARSupportedDevice] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -121,8 +123,8 @@ export default function ARButton({
 
           // Fondo oscuro institucional para que nunca se vea blanco/vacío
           const gradient = ctx.createLinearGradient(0, 0, 0, height);
-          gradient.addColorStop(0, '#0f172a');
-          gradient.addColorStop(1, '#020617');
+          gradient.addColorStop(0, '#0d1d1b');
+          gradient.addColorStop(1, '#050d0c');
           ctx.fillStyle = gradient;
           ctx.fillRect(0, 0, width, height);
 
@@ -132,20 +134,20 @@ export default function ARButton({
           ctx.drawImage(img, x, y);
 
           // Pie de postal con nombre de la molécula y evento
-          ctx.fillStyle = '#0f172a';
+          ctx.fillStyle = '#0d1d1b';
           ctx.fillRect(0, height - 110, width, 110);
-          ctx.strokeStyle = '#1e293b';
+          ctx.strokeStyle = '#225c54';
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.moveTo(0, height - 110);
           ctx.lineTo(width, height - 110);
           ctx.stroke();
 
-          ctx.fillStyle = '#38bdf8';
+          ctx.fillStyle = '#12c6bd';
           ctx.font = 'bold 28px system-ui, sans-serif';
           ctx.fillText(modelName, 32, height - 60);
 
-          ctx.fillStyle = '#94a3b8';
+          ctx.fillStyle = '#94b9b4';
           ctx.font = '20px system-ui, sans-serif';
           ctx.fillText('¡Átomos a la vista! — IF-UNAM', 32, height - 24);
 
@@ -168,11 +170,6 @@ export default function ARButton({
 
   useEffect(() => {
     if (!isModalOpen) return;
-
-    setIsModelLoaded(false);
-    setArError(null);
-    setIsInARSession(false);
-    cachedModelBlobRef.current = null;
 
     const viewer = modelViewerRef.current;
     if (!viewer) return;
@@ -225,6 +222,14 @@ export default function ARButton({
       viewer.removeEventListener('ar-status', handleArStatus);
     };
   }, [isModalOpen, absoluteModelUrl]);
+
+  const handleOpenModal = () => {
+    setIsModelLoaded(false);
+    setArError(null);
+    setIsInARSession(false);
+    cachedModelBlobRef.current = null;
+    setIsModalOpen(true);
+  };
 
   const handleManualActivateAR = async () => {
     const viewer = modelViewerRef.current;
@@ -283,7 +288,7 @@ export default function ARButton({
     }
   };
 
-  if (!isARSupportedDevice || !modelUrl) {
+  if ((!isARSupportedDevice && !compact) || !modelUrl) {
     return null;
   }
 
@@ -291,30 +296,34 @@ export default function ARButton({
     <>
       <button
         type="button"
-        onClick={() => setIsModalOpen(true)}
+        onClick={handleOpenModal}
         aria-label="Ver en Realidad Aumentada"
+        aria-pressed={isModalOpen}
+        disabled={!isARSupportedDevice}
+        title={isARSupportedDevice ? 'Abrir Realidad Aumentada' : 'Realidad Aumentada no disponible en este dispositivo'}
         style={{
-          position: 'absolute',
-          top: '1.25rem',
-          right: '1.25rem',
-          zIndex: 50,
+          position: compact ? 'static' : 'absolute',
+          top: compact ? undefined : '1.25rem',
+          right: compact ? undefined : '1.25rem',
+          zIndex: compact ? undefined : 50,
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
-          padding: '0.7rem 1.2rem',
-          backgroundColor: '#0284c7',
-          color: '#f8fafc',
-          border: '1px solid #38bdf8',
-          borderRadius: '9999px',
+          padding: compact ? '0.7rem 1.15rem' : '0.7rem 1.2rem',
+          backgroundColor: !isARSupportedDevice ? 'transparent' : '#12c6bd',
+          color: !isARSupportedDevice ? '#718984' : '#041210',
+          border: '1px solid',
+          borderColor: !isARSupportedDevice ? '#29554e' : '#12c6bd',
+          borderRadius: compact ? '7px' : '9999px',
           fontWeight: 600,
           fontSize: '0.9rem',
-          boxShadow: '0 8px 20px rgba(2, 132, 199, 0.45)',
-          cursor: 'pointer',
+          boxShadow: compact || !isARSupportedDevice ? 'none' : '0 8px 20px rgba(18, 198, 189, 0.3)',
+          cursor: isARSupportedDevice ? 'pointer' : 'not-allowed',
           transition: 'all 0.2s ease',
         }}
       >
-        <span role="img" aria-hidden="true">📷</span>
-        <span>Ver en RA</span>
+        <span aria-hidden="true">{compact ? 'AR' : '◉'}</span>
+        {!compact && <span>Ver en RA</span>}
       </button>
 
       {isModalOpen && (
@@ -326,7 +335,7 @@ export default function ARButton({
             position: 'fixed',
             inset: 0,
             zIndex: 1000,
-            backgroundColor: 'rgba(2, 6, 23, 0.85)',
+            backgroundColor: 'rgba(1, 8, 7, 0.88)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
             justifyContent: 'center',
@@ -338,11 +347,11 @@ export default function ARButton({
             style={{
               width: '100%',
               maxWidth: '420px',
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
+              backgroundColor: '#0d1d1b',
+              border: '1px solid #225c54',
               borderRadius: '12px',
               overflow: 'hidden',
-              color: '#f8fafc',
+              color: '#e8fbf8',
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.6)',
               display: 'flex',
               flexDirection: 'column',
@@ -355,12 +364,12 @@ export default function ARButton({
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '0.85rem 1.2rem',
-                borderBottom: '1px solid #1e293b',
+                borderBottom: '1px solid #225c54',
               }}
             >
               <h3
                 id="ar-modal-title"
-                style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#38bdf8' }}
+                style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#12c6bd' }}
               >
                 Realidad Aumentada — {modelName}
               </h3>
@@ -371,7 +380,7 @@ export default function ARButton({
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  color: '#94a3b8',
+                  color: '#94b9b4',
                   fontSize: '1.2rem',
                   cursor: 'pointer',
                   padding: '0.2rem 0.4rem',
@@ -385,22 +394,22 @@ export default function ARButton({
             <div
               style={{
                 padding: '0.75rem 1.2rem',
-                backgroundColor: '#020617',
-                borderBottom: '1px solid #1e293b',
+                backgroundColor: '#050d0c',
+                borderBottom: '1px solid #225c54',
                 fontSize: '0.8rem',
                 lineHeight: 1.45,
-                color: '#cbd5e1',
+                color: '#c1e0dc',
               }}
             >
-              <strong style={{ color: '#38bdf8' }}>Instrucciones:</strong> Mueve tu teléfono en círculos sobre la mesa para detectar la superficie. Una vez anclada: <strong>1 dedo</strong> la mueve por la mesa, <strong>2 dedos</strong> la giran o cambian su tamaño.
+              <strong style={{ color: '#12c6bd' }}>Instrucciones:</strong> Mueve tu teléfono en círculos sobre la mesa para detectar la superficie. Una vez anclada: <strong>1 dedo</strong> la mueve por la mesa, <strong>2 dedos</strong> la giran o cambian su tamaño.
             </div>
 
             {/* Controles de tamaño inicial y modo táctil */}
             <div
               style={{
                 padding: '0.6rem 1.2rem',
-                backgroundColor: '#0f172a',
-                borderBottom: '1px solid #1e293b',
+                backgroundColor: '#0d1d1b',
+                borderBottom: '1px solid #225c54',
                 display: 'flex',
                 flexWrap: 'wrap',
                 alignItems: 'center',
@@ -410,7 +419,7 @@ export default function ARButton({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <span style={{ color: '#94a3b8', fontWeight: 600 }}>Tamaño:</span>
+                <span style={{ color: '#94b9b4', fontWeight: 600 }}>Tamaño:</span>
                 {SCALE_PRESETS.map((preset) => {
                   const active = selectedScale === preset.value;
                   return (
@@ -422,9 +431,9 @@ export default function ARButton({
                         padding: '0.25rem 0.5rem',
                         borderRadius: '6px',
                         border: '1px solid',
-                        borderColor: active ? '#38bdf8' : '#334155',
-                        backgroundColor: active ? '#0369a1' : '#1e293b',
-                        color: '#f8fafc',
+                        borderColor: active ? '#12c6bd' : '#28635a',
+                        backgroundColor: active ? '#087e73' : '#17413b',
+                        color: '#e8fbf8',
                         fontSize: '0.72rem',
                         cursor: 'pointer',
                       }}
@@ -442,9 +451,9 @@ export default function ARButton({
                   padding: '0.25rem 0.55rem',
                   borderRadius: '6px',
                   border: '1px solid',
-                  borderColor: allowPinchScale ? '#10b981' : '#475569',
-                  backgroundColor: allowPinchScale ? 'rgba(16, 185, 129, 0.15)' : '#1e293b',
-                  color: allowPinchScale ? '#34d399' : '#94a3b8',
+                  borderColor: allowPinchScale ? '#2bdd48' : '#38635d',
+                  backgroundColor: allowPinchScale ? 'rgba(43, 221, 72, 0.14)' : '#17413b',
+                  color: allowPinchScale ? '#54ed67' : '#94b9b4',
                   fontSize: '0.72rem',
                   cursor: 'pointer',
                 }}
@@ -488,7 +497,7 @@ export default function ARButton({
                 style={{
                   width: '100%',
                   height: '100%',
-                  backgroundColor: '#0f172a',
+                  backgroundColor: '#0d1d1b',
                 }}
               >
                 <button slot="ar-button" style={{ display: 'none' }} />
@@ -514,7 +523,7 @@ export default function ARButton({
                     <div
                       style={{
                         backgroundColor: 'rgba(15, 23, 42, 0.82)',
-                        color: '#f8fafc',
+                        color: '#e8fbf8',
                         padding: '6px 12px',
                         borderRadius: '9999px',
                         fontSize: '12px',
@@ -534,7 +543,7 @@ export default function ARButton({
                         backgroundColor: 'rgba(2, 6, 23, 0.88)',
                         padding: '8px 14px',
                         borderRadius: '9999px',
-                        border: '1px solid #334155',
+                        border: '1px solid #28635a',
                         boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
                       }}
                     >
@@ -548,9 +557,9 @@ export default function ARButton({
                             style={{
                               padding: '6px 10px',
                               borderRadius: '9999px',
-                              border: active ? '1px solid #38bdf8' : '1px solid #334155',
-                              backgroundColor: active ? '#0284c7' : '#1e293b',
-                              color: '#f8fafc',
+                              border: active ? '1px solid #12c6bd' : '1px solid #28635a',
+                              backgroundColor: active ? '#087e73' : '#17413b',
+                              color: '#e8fbf8',
                               fontSize: '12px',
                               fontWeight: 600,
                             }}
@@ -569,15 +578,15 @@ export default function ARButton({
                           marginLeft: '4px',
                           padding: '6px 12px',
                           borderRadius: '9999px',
-                          backgroundColor: '#f8fafc',
-                          color: '#0f172a',
-                          border: '2px solid #38bdf8',
+                          backgroundColor: '#e8fbf8',
+                          color: '#0d1d1b',
+                          border: '2px solid #12c6bd',
                           fontSize: '12px',
                           fontWeight: 700,
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
-                          boxShadow: '0 4px 12px rgba(56, 189, 248, 0.5)',
+                          boxShadow: '0 4px 12px rgba(18, 198, 189, 0.35)',
                         }}
                       >
                         <span>📸</span>
@@ -595,8 +604,8 @@ export default function ARButton({
                       top: '20px',
                       left: '50%',
                       transform: 'translateX(-50%)',
-                      backgroundColor: 'rgba(2, 6, 23, 0.85)',
-                      color: '#38bdf8',
+                      backgroundColor: 'rgba(1, 8, 7, 0.88)',
+                      color: '#12c6bd',
                       padding: '8px 16px',
                       borderRadius: '9999px',
                       fontSize: '12px',
@@ -615,8 +624,8 @@ export default function ARButton({
             <div
               style={{
                 padding: '0.85rem 1.2rem',
-                borderTop: '1px solid #1e293b',
-                backgroundColor: '#020617',
+                borderTop: '1px solid #225c54',
+                backgroundColor: '#050d0c',
                 display: 'flex',
                 gap: '0.6rem',
                 justifyContent: 'center',
@@ -629,13 +638,13 @@ export default function ARButton({
                 style={{
                   flex: 1,
                   padding: '0.75rem 1rem',
-                  backgroundColor: isModelLoaded ? '#0284c7' : '#334155',
-                  color: isModelLoaded ? '#f8fafc' : '#94a3b8',
-                  border: isModelLoaded ? '1px solid #38bdf8' : '1px solid #475569',
+                  backgroundColor: isModelLoaded ? '#087e73' : '#28635a',
+                  color: isModelLoaded ? '#e8fbf8' : '#94b9b4',
+                  border: isModelLoaded ? '1px solid #12c6bd' : '1px solid #38635d',
                   borderRadius: '9999px',
                   fontWeight: 600,
                   fontSize: '0.9rem',
-                  boxShadow: isModelLoaded ? '0 6px 16px rgba(2, 132, 199, 0.5)' : 'none',
+                  boxShadow: isModelLoaded ? '0 6px 16px rgba(18, 198, 189, 0.3)' : 'none',
                   cursor: isModelLoaded ? 'pointer' : 'wait',
                   transition: 'all 0.2s ease',
                 }}
@@ -652,9 +661,9 @@ export default function ARButton({
                   title="Guardar postal 3D del modelo"
                   style={{
                     padding: '0.75rem 1rem',
-                    backgroundColor: '#1e293b',
-                    color: '#f8fafc',
-                    border: '1px solid #334155',
+                    backgroundColor: '#17413b',
+                    color: '#e8fbf8',
+                    border: '1px solid #28635a',
                     borderRadius: '9999px',
                     fontWeight: 600,
                     fontSize: '0.85rem',

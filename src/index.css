@@ -8,7 +8,7 @@ body, html, #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background-color: #0f172a;
-  color: #f8fafc;
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  background-color: #07110f;
+  color: #e8fbf8;
 }

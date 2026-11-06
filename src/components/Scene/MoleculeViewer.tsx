@@ -1,6 +1,6 @@
 import { useRef, useEffect, Suspense, Component, type ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, useAnimations, Center, Float } from '@react-three/drei';
+import { OrbitControls, useGLTF, useAnimations, Bounds, Center, Float } from '@react-three/drei';
 import * as THREE from 'three';
 import HandGestureGroup from './HandGestureGroup';
 import FpsProbe from '../../debug/FpsProbe';
@@ -126,7 +126,7 @@ function LoadingFallback() {
   return (
     <mesh>
       <sphereGeometry args={[0.8, 16, 16]} />
-      <meshStandardMaterial color="#38bdf8" wireframe />
+      <meshStandardMaterial color="#12c6bd" wireframe />
     </mesh>
   );
 }
@@ -140,7 +140,7 @@ export default function MoleculeViewer({
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <Canvas
         camera={{ position: [0, 0, 5], fov: 45 }}
-        style={{ background: '#020617' }}
+        style={{ background: '#07110f' }}
       >
         {DEBUG && <FpsProbe />}
 
@@ -151,15 +151,17 @@ export default function MoleculeViewer({
 
         {/* Carga diferida con Suspense */}
         <Suspense fallback={<LoadingFallback />}>
-          <HandGestureGroup>
-            <Center>
-              <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.4}>
-                <CanvasErrorBoundary modelUrl={modelUrl} fallback={<ProceduralMolecule />}>
-                  <Model modelUrl={modelUrl} hasAnimation={hasAnimation} />
-                </CanvasErrorBoundary>
-              </Float>
-            </Center>
-          </HandGestureGroup>
+          <Bounds fit clip observe margin={1.3}>
+            <HandGestureGroup>
+              <Center>
+                <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.4}>
+                  <CanvasErrorBoundary modelUrl={modelUrl} fallback={<ProceduralMolecule />}>
+                    <Model modelUrl={modelUrl} hasAnimation={hasAnimation} />
+                  </CanvasErrorBoundary>
+                </Float>
+              </Center>
+            </HandGestureGroup>
+          </Bounds>
         </Suspense>
 
         {/* Controles de cámara táctil / ratón. Se desactivan (sin desmontar) mientras hay gestos,

@@ -19,6 +19,7 @@ vi.mock('@react-three/drei', () => ({
   useAnimations: vi.fn(() => ({
     actions: {},
   })),
+  Bounds: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   OrbitControls: () => <div data-testid="orbit-controls" />,
   Center: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Float: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,

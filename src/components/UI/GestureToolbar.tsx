@@ -34,9 +34,9 @@ export default function GestureToolbar({ mode, onPress, busy = false }: GestureT
               padding: '0.4rem 0.85rem',
               borderRadius: '9999px',
               border: '1px solid',
-              borderColor: pressed ? '#38bdf8' : '#1e293b',
-              backgroundColor: pressed ? '#0369a1' : '#020617',
-              color: '#f8fafc',
+              borderColor: pressed ? '#12c6bd' : '#225c54',
+              backgroundColor: pressed ? '#087e73' : '#050d0c',
+              color: '#e8fbf8',
               fontSize: '0.8rem',
               fontWeight: 600,
               cursor: busy ? 'progress' : 'pointer',
@@ -47,7 +47,7 @@ export default function GestureToolbar({ mode, onPress, busy = false }: GestureT
           </button>
         );
       })}
-      <span aria-live="polite" style={{ fontSize: '0.75rem', color: '#94a3b8', minWidth: '7.5rem' }}>
+      <span aria-live="polite" style={{ fontSize: '0.75rem', color: '#94b9b4', minWidth: '7.5rem' }}>
         {busy ? 'Iniciando cámara…' : ''}
       </span>
     </div>
