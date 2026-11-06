@@ -35,7 +35,7 @@ export default function HandTrackingPanel({ attachPreview, starting, onClose }: 
       ctx.clearRect(0, 0, W, H);
       if (handStore.present) {
         const lm = handStore.smoothLandmarks;
-        ctx.strokeStyle = '#38bdf8';
+        ctx.strokeStyle = '#12c6bd';
         ctx.lineWidth = 2;
         ctx.beginPath();
         for (const [a, b] of CONNECTIONS) {
@@ -43,7 +43,7 @@ export default function HandTrackingPanel({ attachPreview, starting, onClose }: 
           ctx.lineTo(lm[b * 3] * W, lm[b * 3 + 1] * H);
         }
         ctx.stroke();
-        ctx.fillStyle = handStore.pinching ? '#22c55e' : '#f97316';
+        ctx.fillStyle = handStore.pinching ? '#2bdd48' : '#12c6bd';
         for (let i = 0; i < LANDMARK_COUNT; i++) {
           ctx.beginPath();
           ctx.arc(lm[i * 3] * W, lm[i * 3 + 1] * H, 3, 0, Math.PI * 2);
@@ -58,6 +58,7 @@ export default function HandTrackingPanel({ attachPreview, starting, onClose }: 
 
   return (
     <div
+      className="hand-preview"
       role="region"
       aria-label="Imagen de la cámara"
       style={{
@@ -68,15 +69,15 @@ export default function HandTrackingPanel({ attachPreview, starting, onClose }: 
         maxWidth: 'calc(100% - 2rem)',
         padding: '0.6rem',
         borderRadius: '10px',
-        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-        border: '1px solid #1e293b',
-        color: '#f8fafc',
+        backgroundColor: 'rgba(7, 22, 19, 0.94)',
+        border: '1px solid #225c54',
+        color: '#e8fbf8',
         zIndex: 10,
         boxSizing: 'border-box',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-        <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+        <span style={{ fontSize: '0.75rem', color: '#94b9b4' }}>
           {starting ? 'Iniciando cámara…' : 'Cámara activa — la imagen no sale de este equipo'}
         </span>
         <button
@@ -87,7 +88,7 @@ export default function HandTrackingPanel({ attachPreview, starting, onClose }: 
           style={{
             border: 'none',
             background: 'transparent',
-            color: '#94a3b8',
+            color: '#94b9b4',
             fontSize: '1.1rem',
             lineHeight: 1,
             cursor: 'pointer',
@@ -103,7 +104,7 @@ export default function HandTrackingPanel({ attachPreview, starting, onClose }: 
           position: 'relative',
           width: '100%',
           aspectRatio: `${W} / ${H}`,
-          backgroundColor: '#020617',
+          backgroundColor: '#050d0c',
           borderRadius: '6px',
           overflow: 'hidden',
           transform: 'scaleX(-1)', // vista espejo
