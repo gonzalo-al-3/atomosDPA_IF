@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ModelViewerElement extends HTMLElement {
   activateAR: () => Promise<void>;
@@ -326,7 +327,7 @@ export default function ARButton({
         {!compact && <span>Ver en RA</span>}
       </button>
 
-      {isModalOpen && (
+      {isModalOpen && createPortal(
         <div
           role="dialog"
           aria-modal="true"
@@ -341,6 +342,7 @@ export default function ARButton({
             justifyContent: 'center',
             alignItems: 'center',
             padding: '1rem',
+            overflowY: 'auto',
           }}
         >
           <div
@@ -355,6 +357,9 @@ export default function ARButton({
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.6)',
               display: 'flex',
               flexDirection: 'column',
+              maxHeight: 'calc(100dvh - 2rem)',
+              overflowY: 'auto',
+              overscrollBehavior: 'contain',
             }}
           >
             {/* Encabezado */}
@@ -675,7 +680,8 @@ export default function ARButton({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
