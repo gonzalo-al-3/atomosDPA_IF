@@ -45,7 +45,23 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <h1>¡Átomos a la vista!</h1>
+        <div className="header-title">
+          <h1>¡Átomos a la vista!</h1>
+          <a
+            className="header-social-link"
+            href="https://www.instagram.com/institutodefisica"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram del Instituto de Física"
+            title="Instagram del Instituto de Física"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle className="instagram-dot" cx="17.5" cy="6.5" r="1" />
+            </svg>
+          </a>
+        </div>
         <a
           className="header-logo-link"
           href="https://www.fisica.unam.mx/puertas_abiertas/pa2026/index.php"
@@ -55,8 +71,8 @@ export default function App() {
         >
           <img
             className="header-mark"
-            src={`${BASE}DPA_26_logo.png`}
-            alt="Identifícate con la Física"
+            src={`${BASE}logo_DPA2ALV_2.png`}
+            alt="Identifícate con la Física — IF-UNAM"
           />
         </a>
       </header>
