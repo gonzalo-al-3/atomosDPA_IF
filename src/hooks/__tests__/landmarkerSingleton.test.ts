@@ -91,4 +91,15 @@ describe('landmarkerSingleton', () => {
     expect(instance.delegate).toBe('CPU');
     expect(perfStore.delegate).toBe('CPU');
   });
+
+  it('si no se puede descargar la librería da un mensaje claro y permite reintentar', async () => {
+    vi.resetModules();
+    vi.doMock('@mediapipe/tasks-vision', () => {
+      throw new Error('Failed to fetch dynamically imported module');
+    });
+    const { acquireLandmarker, releaseLandmarker } = await import('../landmarkerSingleton');
+    await expect(acquireLandmarker()).rejects.toThrow(/No se pudo descargar la detección de manos/);
+    releaseLandmarker();
+    vi.doUnmock('@mediapipe/tasks-vision');
+  });
 });
