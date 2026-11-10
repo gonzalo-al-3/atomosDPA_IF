@@ -185,11 +185,12 @@ export default function App() {
               className={`mode-button${gesturesActive ? ' is-active' : ''}`}
               type="button"
               aria-pressed={gesturesActive}
+              aria-label={hand.starting ? 'Iniciando control por gestos' : gesturesActive ? 'Desactivar control por gestos' : 'Activar control por gestos'}
               onClick={() => gesturesActive ? hand.turnOff() : hand.press('gestures')}
               title={hand.starting ? 'Iniciando cámara…' : 'Activar control por gestos'}
             >
               <span className="mode-indicator" aria-hidden="true" />
-              <span>{hand.starting ? 'Iniciando…' : 'HG'}</span>
+              <span>{hand.starting ? 'Iniciando…' : '🖐️'}</span>
             </button>
           </div>
           {gesturesActive && (
