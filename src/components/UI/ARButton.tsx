@@ -56,6 +56,7 @@ export default function ARButton({
   compact = false,
 }: ARButtonProps) {
   const [isARSupportedDevice, setIsARSupportedDevice] = useState<boolean>(false);
+  const [isAndroidDevice, setIsAndroidDevice] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false);
   const [selectedScale, setSelectedScale] = useState<string>(SCALE_PRESETS[1].value);
@@ -64,6 +65,7 @@ export default function ARButton({
   const [hideARHudForPhoto, setHideARHudForPhoto] = useState<boolean>(false);
   const [photoToast, setPhotoToast] = useState<string | null>(null);
   const [arError, setArError] = useState<string | null>(null);
+  const [selectedARMode, setSelectedARMode] = useState<'scene-viewer' | 'webxr'>('scene-viewer');
 
   const modelViewerRef = useRef<ModelViewerElement | null>(null);
   // Guardamos en caché una captura válida del lienzo 3D antes de entrar a WebXR
@@ -92,6 +94,7 @@ export default function ARButton({
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       const hasXR = 'xr' in navigator;
 
+      setIsAndroidDevice(isAndroid);
       setIsARSupportedDevice(
         isAndroid || isIOS || (hasXR && navigator.maxTouchPoints > 0)
       );
@@ -323,7 +326,7 @@ export default function ARButton({
           transition: 'all 0.2s ease',
         }}
       >
-        <span aria-hidden="true">{compact ? 'AR' : '◉'}</span>
+        <span aria-hidden="true">{compact ? 'RA' : '◉'}</span>
         {!compact && <span>Ver en RA</span>}
       </button>
 
@@ -409,6 +412,30 @@ export default function ARButton({
               <strong style={{ color: '#12c6bd' }}>Instrucciones:</strong> Mueve tu teléfono en círculos sobre la mesa para detectar la superficie. Una vez anclada: <strong>1 dedo</strong> la mueve por la mesa, <strong>2 dedos</strong> la giran o cambian su tamaño.
             </div>
 
+            {isAndroidDevice && (
+              <div className="ar-mode-picker">
+                <span className="ar-mode-picker-label">Modo RA</span>
+                <div className="ar-mode-buttons" role="group" aria-label="Modo de Realidad Aumentada">
+                  <button
+                    type="button"
+                    className={selectedARMode === 'scene-viewer' ? 'is-selected' : ''}
+                    aria-pressed={selectedARMode === 'scene-viewer'}
+                    onClick={() => setSelectedARMode('scene-viewer')}
+                  >
+                    Scene Viewer
+                  </button>
+                  <button
+                    type="button"
+                    className={selectedARMode === 'webxr' ? 'is-selected' : ''}
+                    aria-pressed={selectedARMode === 'webxr'}
+                    onClick={() => setSelectedARMode('webxr')}
+                  >
+                    WebXR
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Controles de tamaño inicial y modo táctil */}
             <div
               style={{
@@ -488,7 +515,7 @@ export default function ARButton({
                 src={absoluteModelUrl}
                 alt={`Modelo 3D en Realidad Aumentada de ${modelName}`}
                 ar
-                ar-modes="webxr scene-viewer quick-look"
+                ar-modes={isAndroidDevice ? selectedARMode : 'webxr scene-viewer quick-look'}
                 ar-placement="floor"
                 ar-scale={allowPinchScale ? 'auto' : 'fixed'}
                 scale={selectedScale}

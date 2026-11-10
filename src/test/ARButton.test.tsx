@@ -23,7 +23,7 @@ describe('ARButton Component', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('muestra el botón Ver en RA en dispositivos móviles y abre el modal con instrucciones', () => {
+  it('permite elegir el modo AR en Android', () => {
     Object.defineProperty(navigator, 'userAgent', {
       value: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120.0.0.0 Mobile Safari/537.36',
       configurable: true,
@@ -35,5 +35,10 @@ describe('ARButton Component', () => {
 
     fireEvent.click(button);
     expect(screen.getByText(/Mueve tu teléfono en círculos sobre la mesa/i)).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Modo de Realidad Aumentada' })).toBeTruthy();
+    expect(document.querySelector('model-viewer')?.getAttribute('ar-modes')).toBe('scene-viewer');
+
+    fireEvent.click(screen.getByRole('button', { name: 'WebXR' }));
+    expect(document.querySelector('model-viewer')?.getAttribute('ar-modes')).toBe('webxr');
   });
 });

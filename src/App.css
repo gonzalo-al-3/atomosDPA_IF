@@ -461,6 +461,50 @@
   font-size: 10px;
 }
 
+.ar-mode-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 1.2rem;
+  border-bottom: 1px solid #225c54;
+  background: #0d1d1b;
+  font-size: 12px;
+}
+
+.ar-mode-picker-label {
+  color: var(--app-muted);
+  font-weight: 650;
+}
+
+.ar-mode-buttons {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--app-line);
+  border-radius: 6px;
+  background: #050d0c;
+}
+
+.ar-mode-buttons button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--app-muted);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.ar-mode-buttons button.is-selected {
+  border-color: #1a766d;
+  background: #10332d;
+  color: var(--app-accent);
+}
+
 .catalog-item {
   display: flex;
   flex-direction: column;
