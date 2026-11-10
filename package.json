@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "setup:hand-tracking": "node scripts/setup-hand-tracking.mjs",
-    "predev": "npm run setup:hand-tracking",
+    "setup:model-viewer": "node scripts/setup-model-viewer.mjs",
+    "predev": "npm run setup:hand-tracking && npm run setup:model-viewer",
     "dev": "vite",
-    "prebuild": "npm run setup:hand-tracking",
+    "prebuild": "npm run setup:hand-tracking && npm run setup:model-viewer",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

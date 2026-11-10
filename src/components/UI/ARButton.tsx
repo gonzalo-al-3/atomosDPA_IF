@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { loadModelViewer, preloadModelViewerWhenIdle } from './loadModelViewer';
 
 interface ModelViewerElement extends HTMLElement {
   activateAR: () => Promise<void>;
@@ -105,6 +106,11 @@ export default function ARButton({
 
     checkMobileCompatibility();
   }, []);
+
+  // <model-viewer> se carga en segundo plano solo en dispositivos con RA (nunca en escritorio).
+  useEffect(() => {
+    if (isARSupportedDevice) preloadModelViewerWhenIdle();
+  }, [isARSupportedDevice]);
 
   // Compone una postal PNG con fondo oscuro y encabezado para que nunca salga transparente ni en blanco
   const buildPostcardBlob = useCallback(
@@ -237,6 +243,10 @@ export default function ARButton({
     setIsInARSession(false);
     cachedModelBlobRef.current = null;
     setIsModalOpen(true);
+    // Si la precarga no terminó (o falló), se espera aquí; el visor aparece en cuanto se registra.
+    loadModelViewer().catch(() => {
+      setArError('No se pudo cargar el visor de Realidad Aumentada. Verifica tu conexión e inténtalo de nuevo.');
+    });
   };
 
   const handleManualActivateAR = async () => {

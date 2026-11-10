@@ -26,3 +26,6 @@ dist-ssr
 # Assets de MediaPipe (se generan con `npm run setup:hand-tracking`)
 public/mediapipe-wasm/
 public/models/hand_landmarker.task
+
+# model-viewer precompilado (se genera con `npm run setup:model-viewer`)
+public/vendor/
