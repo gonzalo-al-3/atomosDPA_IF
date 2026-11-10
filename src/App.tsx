@@ -166,13 +166,19 @@ export default function App() {
                   })}
                 </div>
               ) : (
-                <section id="catalog-panel-description" className="model-details" role="tabpanel" aria-labelledby="catalog-tab-description" aria-live="polite">
-                  <span className="eyebrow">{selectedModel.category}</span>
-                  <h3>{selectedModel.name}</h3>
-                  <p className="model-formula">Fórmula <strong>{selectedModel.chemicalFormula}</strong></p>
-                  <p className="model-description">{selectedModel.description}</p>
-                </section>
-              )}
+              <section id="catalog-panel-description" className="model-details" role="tabpanel" aria-labelledby="catalog-tab-description" aria-live="polite">
+  <span className="eyebrow">{selectedModel.category}</span>
+  <h3>{selectedModel.name}</h3>
+  <p className="model-formula">Fórmula <strong>{selectedModel.chemicalFormula}</strong></p>
+  <p className="model-description">{selectedModel.description}</p>
+  {selectedModel.anatomy && (
+    <div className="model-anatomy">
+      <strong>Cómo leer el modelo</strong>
+      <p>{selectedModel.anatomy}</p>
+    </div>
+  )}
+</section>
+	      )}
             </aside>
           </>
         )}

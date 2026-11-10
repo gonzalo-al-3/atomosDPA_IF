@@ -811,3 +811,26 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+.model-anatomy {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(94, 234, 212, 0.08);
+  border-left: 3px solid #5eead4;
+  border-radius: 6px;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.model-anatomy strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #5eead4;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.model-anatomy p {
+  margin: 0;
+}

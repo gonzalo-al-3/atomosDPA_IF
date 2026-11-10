@@ -4,6 +4,7 @@
     "name": "ADN (Doble Hélice)",
     "category": "Biomoléculas",
     "description": "La molécula que contiene las instrucciones genéticas para el desarrollo y funcionamiento de todos los organismos vivos. Su famosa estructura de doble hélice fue descubierta en 1953.",
+    "anatomy": "En el modelo se ven dos cadenas enrolladas formadas por miles de átomos (carbono gris, oxígeno rojo, nitrógeno azul, fósforo naranja) unidas por puentes de hidrógeno en el centro. Es una macromolécula, por eso se muestra simplificada.",
     "chemicalFormula": "No aplica (polímero)",
     "modelUrl": "/models/adn.glb",
     "hasAnimation": false
@@ -13,6 +14,7 @@
     "name": "Esfingomielinasa Ácida Humana",
     "category": "Biomoléculas",
     "description": "Una enzima crucial en el cuerpo humano encargada de descomponer los lípidos. El modelo muestra su estructura tridimensional en forma de cintas.",
+    "anatomy": "Aquí no se usan esferas y varillas sino cintas (ribbons): representan el plegamiento tridimensional de la cadena de aminoácidos, que es lo que determina la función de la proteína. Las cintas anchas son hélices alfa; las flechas planas son láminas beta.",
     "chemicalFormula": "No aplica (proteína)",
     "modelUrl": "/models/proteina_asm.glb",
     "hasAnimation": false
@@ -22,6 +24,7 @@
     "name": "Nitruro de Boro Cúbico (CBN)",
     "category": "Fragmentos Cristalinos",
     "description": "El segundo material más duro de la naturaleza después del diamante. Su estructura cristalina cúbica le otorga propiedades increíbles para la industria.",
+    "anatomy": "En el modelo se ve una red cristalina cúbica donde los átomos de boro y nitrógeno se alternan, unidos por enlaces covalentes en una estructura rígida y ordenada. Cada esfera es un átomo; cada varilla, un enlace.",
     "chemicalFormula": "BN",
     "modelUrl": "/models/cbn.glb",
     "hasAnimation": false
@@ -31,6 +34,7 @@
     "name": "Buckminsterfullereno (C60)",
     "category": "Nanopartículas",
     "description": "Una molécula de carbono con forma de balón de fútbol. Es una de las nanoestructuras más famosas y prometedoras en el campo de la nanotecnología.",
+    "anatomy": "Las 60 esferas grises son átomos de carbono unidos entre sí por enlaces covalentes (varillas). El patrón de hexágonos y pentágonos es el mismo que el de un balón de fútbol. Es una forma alotrópica del carbono, junto con el grafito y el diamante.",
     "chemicalFormula": "C60",
     "modelUrl": "/models/fullereno.glb",
     "hasAnimation": false
@@ -40,6 +44,7 @@
     "name": "Nanotubo de Carbono",
     "category": "Nanopartículas",
     "description": "Estructuras cilíndricas microscópicas de carbono con una resistencia y conductividad extraordinarias. Son el futuro de los materiales avanzados.",
+    "anatomy": "El modelo muestra una lámina de grafeno (una red hexagonal de átomos de carbono) enrollada en forma de cilindro. Cada esfera es un átomo de carbono; cada varilla, un enlace covalente. Su geometría tubular le da una resistencia mecánica y conductividad eléctrica extraordinarias.",
     "chemicalFormula": "C",
     "modelUrl": "/models/nanotubo.glb",
     "hasAnimation": false
@@ -49,6 +54,7 @@
     "name": "Aspirina (Ácido Acetilsalicílico)",
     "category": "Pequeñas Moléculas",
     "description": "Uno de los medicamentos más consumidos del mundo. Tiene propiedades analgésicas, antipiréticas y antiinflamatorias.",
+    "anatomy": "En el modelo se ve un anillo aromático de seis carbonos (esferas grises) con un grupo ácido (oxígenos rojos, hidrógeno blanco) y un grupo éster. Las varillas son enlaces covalentes; las varillas dobles representan dobles enlaces.",
     "chemicalFormula": "C9H8O4",
     "modelUrl": "/models/aspirina.glb",
     "hasAnimation": false
@@ -58,6 +64,7 @@
     "name": "Beta-D-Glucosa",
     "category": "Pequeñas Moléculas",
     "description": "El azúcar principal que circula en la sangre y la principal fuente de energía para las células de nuestro cuerpo.",
+    "anatomy": "En el modelo se ve un anillo de seis átomos (5 de carbono en gris, 1 de oxígeno en rojo) con varios grupos hidroxilo (OH). Las esferas blancas pequeñas son hidrógenos; las varillas, enlaces covalentes simples.",
     "chemicalFormula": "C6H12O6",
     "modelUrl": "/models/glucosa.glb",
     "hasAnimation": false
@@ -67,6 +74,7 @@
     "name": "Cafeína",
     "category": "Pequeñas Moléculas",
     "description": "Un alcaloide estimulante del sistema nervioso central. Bloquea los receptores de adenosina en el cerebro, evitando la sensación de somnolencia.",
+    "anatomy": "En el modelo se ven dos anillos fusionados con varios nitrógenos (azules) y oxígenos (rojos), unidos por enlaces covalentes. Las esferas grises son carbonos; las blancas pequeñas, hidrógenos.",
     "chemicalFormula": "C8H10N4O2",
     "modelUrl": "/models/cafeina.glb",
     "hasAnimation": false
@@ -76,6 +84,7 @@
     "name": "Dióxido de Carbono (CO2)",
     "category": "Pequeñas Moléculas",
     "description": "Un gas incoloro esencial para la vida en la Tierra (las plantas lo usan para la fotosíntesis), pero también uno de los principales gases de efecto invernadero.",
+    "anatomy": "En el modelo, el carbono (esfera gris oscura) está en el centro unido a dos oxígenos (esferas rojas) por enlaces covalentes dobles, representados como dos varillas paralelas. Es una molécula lineal.",
     "chemicalFormula": "CO2",
     "modelUrl": "/models/co2.glb",
     "hasAnimation": false
@@ -85,6 +94,7 @@
     "name": "Dopamina",
     "category": "Pequeñas Moléculas",
     "description": "Un neurotransmisor clave en el sistema nervioso central. Está asociado con la motivación, el sistema de recompensa y el control motor.",
+    "anatomy": "En el modelo se ve un anillo aromático (catecol) con dos grupos hidroxilo y una cadena de etilamina terminada en un grupo amino (nitrógeno azul). Las varillas representan enlaces covalentes entre los átomos.",
     "chemicalFormula": "C8H11NO2",
     "modelUrl": "/models/dopamina.glb",
     "hasAnimation": false
@@ -94,6 +104,7 @@
     "name": "Paracetamol",
     "category": "Pequeñas Moléculas",
     "description": "Un medicamento ampliamente utilizado para aliviar el dolor leve a moderado y reducir la fiebre. Es el principio activo de marcas comerciales muy conocidas.",
+    "anatomy": "En el modelo se ve un anillo aromático de carbonos (grises), un grupo amida con nitrógeno (azul) y un grupo hidroxilo con oxígeno (rojo). Las varillas son enlaces covalentes entre esos átomos.",
     "chemicalFormula": "C8H9NO2",
     "modelUrl": "/models/paracetamol.glb",
     "hasAnimation": false
@@ -103,6 +114,7 @@
     "name": "Serotonina",
     "category": "Pequeñas Moléculas",
     "description": "Conocida popularmente como la 'hormona de la felicidad'. Es un neurotransmisor que regula el estado de ánimo, el sueño y el apetito.",
+    "anatomy": "En el modelo se ve un anillo indol (dos anillos fusionados con un nitrógeno azul) y una cadena de etilamina con un grupo amino y un hidroxilo (oxígeno rojo). Cada esfera es un átomo; cada varilla, un enlace covalente.",
     "chemicalFormula": "C10H12N2O",
     "modelUrl": "/models/serotonina.glb",
     "hasAnimation": false
@@ -112,6 +124,7 @@
     "name": "Superficies y Materiales (PBR)",
     "category": "Superficies/Materiales",
     "description": "Una matriz visual que muestra cómo interactúan los materiales con la luz. Desde metales brillantes y pulidos hasta superficies rugosas y plásticos mates.",
+    "anatomy": "A diferencia de los demás modelos, aquí no se ven átomos individuales: se representa cómo se comporta la materia a escala macroscópica. PBR (Physically Based Rendering) simula cómo la luz rebota en distintas superficies: la rugosidad, el metal y el color.",
     "chemicalFormula": "No aplica",
     "modelUrl": "/models/materiales.glb",
     "hasAnimation": false

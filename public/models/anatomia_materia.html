@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anatomía de la Materia | DPA</title>
+<script type="module"
+  src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#141a2e; --text:#e8ecf8; --muted:#9aa4c7;
+    --accent:#5eead4; --accent2:#f472b6; --border:#26304d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       background:var(--bg);color:var(--text);line-height:1.6}
+  header{padding:4rem 1.5rem 3rem;text-align:center;
+         background:radial-gradient(circle at 50% 0%,#1b2547 0%,var(--bg) 70%)}
+  header h1{font-size:clamp(2rem,5vw,3.5rem);margin:0 0 1rem;
+            background:linear-gradient(90deg,var(--accent),var(--accent2));
+            -webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{max-width:700px;margin:0 auto;color:var(--muted);font-size:1.1rem}
+  main{max-width:1100px;margin:0 auto;padding:0 1.5rem 5rem}
+  section{margin-top:4rem}
+  h2{font-size:1.8rem;border-left:4px solid var(--accent);
+     padding-left:1rem;margin-bottom:1.5rem}
+  h3{color:var(--accent)}
+  .grid{display:grid;gap:1.5rem;
+        grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--border);
+        border-radius:16px;padding:1.5rem}
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+          gap:.75rem;margin:1rem 0}
+  .legend-item{display:flex;align-items:center;gap:.75rem;background:var(--bg);
+               padding:.6rem .9rem;border-radius:999px;border:1px solid var(--border)}
+  .swatch{width:24px;height:24px;border-radius:50%;flex-shrink:0;
+          box-shadow:0 0 8px currentColor}
+  .model-card{background:var(--panel);border:1px solid var(--border);
+              border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .model-card model-viewer{width:100%;height:320px;
+    background:radial-gradient(circle at 50% 40%,#1c2748,#0a0f1f)}
+  .model-card .info{padding:1.2rem}
+  .model-card .info h3{margin:0 0 .4rem}
+  .model-card .info .formula{font-family:monospace;color:var(--accent2);font-size:.9rem}
+  .model-card .info p{margin:.6rem 0 0;color:var(--muted);font-size:.95rem}
+  .badge{display:inline-block;font-size:.75rem;padding:.2rem .6rem;border-radius:999px;
+         background:rgba(94,234,212,.15);color:var(--accent);
+         border:1px solid rgba(94,234,212,.3);margin-bottom:.5rem}
+  .note{background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.3);
+        border-radius:12px;padding:1rem 1.25rem;color:var(--muted);font-size:.95rem}
+  .bond-demo{display:flex;align-items:center;justify-content:center;margin:1.5rem 0}
+  .bond-demo .sphere{width:50px;height:50px;border-radius:50%}
+  .bond-demo .stick{width:60px;height:6px;background:var(--muted)}
+  footer{text-align:center;padding:2rem;color:var(--muted);
+         border-top:1px solid var(--border);font-size:.9rem}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Anatomía de la Materia</h1>
+  <p>Una guía simple para entender de qué está hecho todo lo que nos rodea
+     y cómo nuestros modelos 3D lo representan.</p>
+</header>
+
+<main>
+
+  <section>
+    <h2>1. ¿De qué está hecha la materia?</h2>
+    <p>Todo lo que podemos tocar —el agua, el aire, una aspirina, nuestro ADN—
+       está hecho de <strong>átomos</strong>. Los átomos son las piezas más pequeñas
+       de un elemento químico que conservan sus propiedades.</p>
+    <p>Y los átomos, a su vez, están formados por partículas aún más pequeñas:</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Protón</h3>
+        <p>Carga positiva (+). Vive en el <strong>núcleo</strong>.
+           Su cantidad define el elemento químico.</p>
+      </div>
+      <div class="card">
+        <h3>Neutrón</h3>
+        <p>Sin carga (neutro). También en el <strong>núcleo</strong>.
+           Ayuda a mantenerlo unido.</p>
+      </div>
+      <div class="card">
+        <h3>Electrón</h3>
+        <p>Carga negativa (−). Orbita alrededor del núcleo y es responsable
+           de los <strong>enlaces químicos</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Elementos: los ladrillos de la materia</h2>
+    <p>Cada tipo de átomo es un <strong>elemento</strong>. Hay 118 elementos conocidos
+       y se organizan en la <strong>tabla periódica</strong>. En nuestros modelos
+       encontrarás principalmente estos:</p>
+    <div class="legend">
+      <div class="legend-item"><span class="swatch" style="background:#f5f5f5;color:#f5f5f5"></span> Hidrógeno (H)</div>
+      <div class="legend-item"><span class="swatch" style="background:#3a3a3a;color:#3a3a3a"></span> Carbono (C)</div>
+      <div class="legend-item"><span class="swatch" style="background:#3050f8;color:#3050f8"></span> Nitrógeno (N)</div>
+      <div class="legend-item"><span class="swatch" style="background:#ff2d2d;color:#ff2d2d"></span> Oxígeno (O)</div>
+      <div class="legend-item"><span class="swatch" style="background:#ffff30;color:#ffff30"></span> Azufre (S)</div>
+      <div class="legend-item"><span class="swatch" style="background:#ff8000;color:#ff8000"></span> Fósforo (P)</div>
+    </div>
+    <p class="note">💡 Este código de colores se llama <strong>CPK</strong> y es estándar
+       en química: por eso en todos nuestros modelos el oxígeno siempre es rojo
+       y el carbono gris oscuro.</p>
+  </section>
+
+  <section>
+    <h2>3. Enlaces: cómo se unen los átomos</h2>
+    <p>Los átomos se unen mediante <strong>enlaces químicos</strong>. Los más comunes:</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Enlace covalente</h3>
+        <p>Dos átomos <strong>comparten electrones</strong>. Es el enlace de las
+           moléculas orgánicas (glucosa, aspirina, ADN). En los modelos se
+           representa como una <strong>barra o cilindro</strong> entre esferas.</p>
+      </div>
+      <div class="card">
+        <h3>Enlace iónico</h3>
+        <p>Un átomo <strong>cede electrones</strong> a otro. Típico de sales
+           (como la sal de mesa, NaCl). Suele mostrarse como esferas juntas sin barra.</p>
+      </div>
+      <div class="card">
+        <h3>Enlace metálico</h3>
+        <p>Los electrones fluyen libremente entre átomos.
+           Explica la conductividad de los metales.</p>
+      </div>
+    </div>
+    <div class="bond-demo">
+      <div class="sphere" style="background:#3a3a3a"></div>
+      <div class="stick"></div>
+      <div class="sphere" style="background:#ff2d2d"></div>
+    </div>
+    <p style="text-align:center;color:var(--muted);font-size:.9rem">
+      Representación "bola y varilla": esferas = átomos, varillas = enlaces.</p>
+  </section>
+
+  <section>
+    <h2>4. Cómo leer nuestros modelos 3D</h2>
+    <p>Los modelos del DPA usan la representación <strong>bola y varilla</strong>
+       (ball-and-stick), la más común en educación. Así se interpreta:</p>
+    <div class="grid">
+      <div class="card">
+        <h3>🔵 Esferas</h3>
+        <p>Cada esfera es un <strong>átomo</strong>. Su color indica el elemento
+           (código CPK). Su tamaño es aproximado, no a escala real.</p>
+      </div>
+      <div class="card">
+        <h3>➖ Varillas</h3>
+        <p>Cada varilla es un <strong>enlace covalente</strong>. Una varilla doble
+           representa un doble enlace; triple, triple enlace.</p>
+      </div>
+      <div class="card">
+        <h3>🧬 Macromoléculas</h3>
+        <p>En el ADN o las proteínas, miles de átomos forman cadenas largas.
+           Solemos simplificar mostrando solo la estructura principal.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>5. Nuestros modelos, explicados</h2>
+    <p>Explora cada modelo y descubre qué tipo de materia representa.
+       En móvil compatible, pulsa el icono de AR para verlo en tu espacio.</p>
+    <div class="grid" id="galeria"></div>
+  </section>
+
+</main>
+
+<footer>
+  Recurso educativo · DPA · Los modelos 3D son representaciones simplificadas;
+  los átomos no tienen color ni tamaño real a esta escala.
+</footer>
+
+<script type="module">
+const MODELOS = [
+  { archivo:"co2.glb",          nombre:"Dióxido de carbono", formula:"CO₂",
+    tipo:"Molécula pequeña",
+    desc:"Un átomo de carbono unido a dos de oxígeno por enlaces dobles. Es el gas que exhalamos y el principal gas de efecto invernadero." },
+  { archivo:"glucosa.glb",      nombre:"Glucosa", formula:"C₆H₁₂O₆",
+    tipo:"Molécula orgánica",
+    desc:"Un azúcar simple. Anillo de 6 carbonos con grupos hidroxilo (–OH). Es la principal fuente de energía de las células." },
+  { archivo:"aspirina.glb",     nombre:"Aspirina", formula:"C₉H₈O₄",
+    tipo:"Fármaco",
+    desc:"Ácido acetilsalicílico. Anillo aromático con grupos ácido y éster. Analgésico y antiinflamatorio." },
+  { archivo:"cafeina.glb",      nombre:"Cafeína", formula:"C₈H₁₀N₄O₂",
+    tipo:"Alcaloide",
+    desc:"Sistema de anillos fusionados con varios nitrógenos. Estimulante del sistema nervioso central." },
+  { archivo:"paracetamol.glb",  nombre:"Paracetamol", formula:"C₈H₉NO₂",
+    tipo:"Fármaco",
+    desc:"Anillo aromático con grupo amida e hidroxilo. Analgésico y antipirético muy usado." },
+  { archivo:"dopamina.glb",     nombre:"Dopamina", formula:"C₈H₁₁NO₂",
+    tipo:"Neurotransmisor",
+    desc:"Anillo catecol con cadena etilamina. Regula motivación, recompensa y movimiento." },
+  { archivo:"serotonina.glb",   nombre:"Serotonina", formula:"C₁₀H₁₂N₂O",
+    tipo:"Neurotransmisor",
+    desc:"Anillo indol con cadena etilamina. Regula el estado de ánimo, el sueño y el apetito." },
+  { archivo:"cbn.glb",          nombre:"Cannabinol (CBN)", formula:"C₂₁H₂₆O₂",
+    tipo:"Cannabinoide",
+    desc:"Molécula presente en la planta de cannabis. Estructura de tres anillos con cadena hidrocarbonada." },
+  { archivo:"adn.glb",          nombre:"ADN", formula:"Macromolécula",
+    tipo:"Ácido nucleico",
+    desc:"Doble hélice formada por dos cadenas de nucleótidos unidas por puentes de hidrógeno. Contiene la información genética." },
+  { archivo:"proteina_asm.glb", nombre:"Proteína", formula:"Macromolécula",
+    tipo:"Polímero de aminoácidos",
+    desc:"Cadena de aminoácidos plegada en una estructura 3D. Las proteínas realizan casi todas las funciones celulares." },
+  { archivo:"fullereno.glb",    nombre:"Fullereno (C₆₀)", formula:"C₆₀",
+    tipo:"Nanomaterial",
+    desc:"60 átomos de carbono formando una jaula esférica, como un balón de fútbol. Una forma alotrópica del carbono." },
+  { archivo:"nanotubo.glb",     nombre:"Nanotubo de carbono", formula:"Cₙ",
+    tipo:"Nanomaterial",
+    desc:"Lámina de grafeno enrollada en un cilindro. Extremadamente resistente y conductor." },
+  { archivo:"materiales.glb",   nombre:"Materiales", formula:"—",
+    tipo:"Comparativa",
+    desc:"Modelo de comparación de distintos materiales y sus estructuras atómicas." }
+];
+
+const galeria = document.getElementById("galeria");
+for (const m of MODELOS) {
+  const card = document.createElement("div");
+  card.className = "model-card";
+  card.innerHTML = `
+    <model-viewer
+      src="${m.archivo}"
+      alt="${m.nombre}"
+      camera-controls auto-rotate
+      ar ar-modes="webxr scene-viewer quick-look"
+      shadow-intensity="0.8" exposure="1"
+      environment-image="neutral"
+      interaction-prompt="none"
+      loading="lazy">
+    </model-viewer>
+    <div class="info">
+      <span class="badge">${m.tipo}</span>
+      <h3>${m.nombre}</h3>
+      <div class="formula">${m.formula}</div>
+      <p>${m.desc}</p>
+    </div>`;
+  galeria.appendChild(card);
+}
+</script>
+</body>
+</html>
