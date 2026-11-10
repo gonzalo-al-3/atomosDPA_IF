@@ -1,6 +1,6 @@
-import { useRef, useEffect, Suspense, Component, type ReactNode } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, useAnimations, Bounds, Center, Float } from '@react-three/drei';
+import { useRef, useEffect, useLayoutEffect, Suspense, Component, type ReactNode } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, useGLTF, useAnimations, Bounds } from '@react-three/drei';
 import * as THREE from 'three';
 import HandGestureGroup from './HandGestureGroup';
 import FpsProbe from '../../debug/FpsProbe';
@@ -92,9 +92,31 @@ function ProceduralMolecule() {
   );
 }
 
+/**
+ * Caja envolvente de `root` en el sistema de su padre, sin depender de las transformaciones
+ * de los grupos de arriba (gestos, Float). Se usa para centrar cada modelo.
+ */
+function boxInParentFrame(root: THREE.Object3D): THREE.Box3 {
+  root.updateMatrix();
+  root.updateMatrixWorld(true);
+  const toRoot = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  const box = new THREE.Box3();
+  const part = new THREE.Box3();
+  const m = new THREE.Matrix4();
+  root.traverse((obj) => {
+    const geometry = (obj as THREE.Mesh).geometry as THREE.BufferGeometry | undefined;
+    if (!geometry?.attributes?.position) return;
+    if (!geometry.boundingBox) geometry.computeBoundingBox();
+    part.copy(geometry.boundingBox!).applyMatrix4(m.multiplyMatrices(toRoot, obj.matrixWorld));
+    box.union(part);
+  });
+  return box.applyMatrix4(root.matrix);
+}
+
 // Componente interno encargado de cargar el archivo .glb y gestionar animaciones
 function Model({ modelUrl, hasAnimation }: InnerModelProps) {
   const group = useRef<THREE.Group>(null);
+  const offset = useRef<THREE.Group>(null);
   
   // hook useGLTF de Drei para parsear los assets 3D
   const { scene, animations } = useGLTF(modelUrl);
@@ -114,11 +136,48 @@ function Model({ modelUrl, hasAnimation }: InnerModelProps) {
     }
   }, [actions, hasAnimation, modelUrl]);
 
+  // Centrado: el centro de la caja envolvente queda en el origen, para cada modelo que se cargue.
+  // (Center de drei solo calcula al montar y no se entera de los cambios de modelo.)
+  useLayoutEffect(() => {
+    const g = offset.current;
+    if (!(g instanceof THREE.Object3D)) return; // (en tests sin WebGL el grupo es un nodo DOM)
+    const box = boxInParentFrame(scene);
+    if (box.isEmpty()) g.position.set(0, 0, 0);
+    else box.getCenter(g.position).negate();
+  }, [scene]);
+
   return (
     <group ref={group} dispose={null}>
-      <primitive object={scene} />
+      <group ref={offset}>
+        <primitive object={scene} />
+      </group>
     </group>
   );
+}
+
+/**
+ * Flotación decorativa (misma fórmula que Float de drei). Al desactivarla vuelve suavemente a la
+ * posición neutra; Float de drei se congelaría desplazado y la molécula no quedaría centrada.
+ */
+function IdleFloat({ enabled, children }: { enabled: boolean; children: ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
+  const SPEED = 1.5;
+  const ROTATION_INTENSITY = 0.2;
+  const FLOAT_INTENSITY = 0.4;
+
+  useFrame((state, delta) => {
+    const g = ref.current;
+    if (!g) return;
+    const t = (state.clock.elapsedTime / 4) * SPEED;
+    const on = enabled ? 1 : 0;
+    const k = 1 - Math.exp(-6 * delta);
+    g.rotation.x += ((on * Math.cos(t)) / 8 * ROTATION_INTENSITY - g.rotation.x) * k;
+    g.rotation.y += ((on * Math.sin(t)) / 8 * ROTATION_INTENSITY - g.rotation.y) * k;
+    g.rotation.z += ((on * Math.sin(t)) / 20 * ROTATION_INTENSITY - g.rotation.z) * k;
+    g.position.y += ((on * Math.sin(t)) / 10 * FLOAT_INTENSITY - g.position.y) * k;
+  });
+
+  return <group ref={ref}>{children}</group>;
 }
 
 // Indicador visual de carga mientras el modelo 3D se descarga
@@ -152,14 +211,13 @@ export default function MoleculeViewer({
         {/* Carga diferida con Suspense */}
         <Suspense fallback={<LoadingFallback />}>
           <Bounds fit clip observe margin={1.3}>
-            <HandGestureGroup>
-              <Center>
-                <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.4}>
-                  <CanvasErrorBoundary modelUrl={modelUrl} fallback={<ProceduralMolecule />}>
-                    <Model modelUrl={modelUrl} hasAnimation={hasAnimation} />
-                  </CanvasErrorBoundary>
-                </Float>
-              </Center>
+            <HandGestureGroup active={gesturesActive} resetKey={modelUrl}>
+              {/* Flotación decorativa solo sin gestos: con gestos el centro debe ser estable. */}
+              <IdleFloat enabled={!gesturesActive}>
+                <CanvasErrorBoundary modelUrl={modelUrl} fallback={<ProceduralMolecule />}>
+                  <Model modelUrl={modelUrl} hasAnimation={hasAnimation} />
+                </CanvasErrorBoundary>
+              </IdleFloat>
             </HandGestureGroup>
           </Bounds>
         </Suspense>

@@ -19,12 +19,12 @@ export interface HandStore {
   palmY: number;
   /** Tamaño de la mano: muñeca (0) → base del dedo medio (9), en unidades de altura de imagen. */
   handSize: number;
-  /** Distancia pulgar–índice / tamaño de la mano. ~0.1 en contacto, ~1 mano abierta. */
-  pinchRatio: number;
-  /** Agarre: pellizco con histéresis. El modelo solo responde mientras es true. */
-  pinching: boolean;
+  /** Distancia media puntas de los dedos → muñeca / tamaño de la mano. ~1 puño, ~1.9 mano abierta. */
+  curlRatio: number;
+  /** Agarre: puño cerrado con histéresis. */
+  grabbing: boolean;
 
-  /** Se incrementa en cada agarre nuevo; el visor lo usa para guardar la rotación base. */
+  /** Se incrementa en cada agarre nuevo; el visor lo usa para guardar la posición base. */
   grabId: number;
   /** Palma y tamaño de la mano al empezar el agarre (referencia de calibración). */
   grabStartX: number;
@@ -34,11 +34,17 @@ export interface HandStore {
   sizeRatio: number;
 
   /**
-   * Giro (rad) acumulado desde el inicio del agarre por arrastre de la palma.
-   * x: sobre el eje X (palma arriba/abajo), y: sobre el eje Y (palma izquierda/derecha). 0 sin agarre.
+   * Giro pendiente (rad) por el movimiento de la mano abierta. La detección suma y el visor lo
+   * consume (lo pone en 0) en cada frame. x: sobre el eje horizontal de la pantalla (mano
+   * arriba/abajo), y: sobre el eje vertical (mano izquierda/derecha).
    */
-  rotationDelta: { x: number; y: number };
-  /** Escala objetivo (ZOOM_MIN..ZOOM_MAX). Se conserva al soltar o perder la mano. */
+  rotationAccum: { x: number; y: number };
+  /**
+   * Desplazamiento de la palma desde el inicio del agarre, en alturas de imagen
+   * (x espejada: + = derecha; y: + = abajo). 0 sin agarre.
+   */
+  dragOffset: { x: number; y: number };
+  /** Escala objetivo (ZOOM_MIN..ZOOM_MAX). Se conserva al soltar, perder la mano o apagar los gestos. */
   zoomLevel: number;
 }
 
@@ -51,17 +57,19 @@ export const handStore: HandStore = {
   palmX: 0.5,
   palmY: 0.5,
   handSize: 0,
-  pinchRatio: 1,
-  pinching: false,
+  curlRatio: 2,
+  grabbing: false,
   grabId: 0,
   grabStartX: 0.5,
   grabStartY: 0.5,
   grabRefSize: 0,
   sizeRatio: 1,
-  rotationDelta: { x: 0, y: 0 },
+  rotationAccum: { x: 0, y: 0 },
+  dragOffset: { x: 0, y: 0 },
   zoomLevel: 1,
 };
 
+/** Al apagar la cámara. El zoom se conserva (solo se reinicia al cambiar de modelo). */
 export function resetHandStore() {
   handStore.landmarks.fill(0);
   handStore.smoothLandmarks.fill(0);
@@ -71,13 +79,21 @@ export function resetHandStore() {
   handStore.palmX = 0.5;
   handStore.palmY = 0.5;
   handStore.handSize = 0;
-  handStore.pinchRatio = 1;
-  handStore.pinching = false;
+  handStore.curlRatio = 2;
+  handStore.grabbing = false;
   handStore.grabStartX = 0.5;
   handStore.grabStartY = 0.5;
   handStore.grabRefSize = 0;
   handStore.sizeRatio = 1;
-  handStore.rotationDelta.x = 0;
-  handStore.rotationDelta.y = 0;
+  handStore.rotationAccum.x = 0;
+  handStore.rotationAccum.y = 0;
+  handStore.dragOffset.x = 0;
+  handStore.dragOffset.y = 0;
+}
+
+/** Al cambiar de modelo: zoom a 1 y sin giro pendiente. */
+export function resetModelTransform() {
   handStore.zoomLevel = 1;
+  handStore.rotationAccum.x = 0;
+  handStore.rotationAccum.y = 0;
 }

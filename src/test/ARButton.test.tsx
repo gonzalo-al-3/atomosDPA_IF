@@ -41,4 +41,16 @@ describe('ARButton Component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'WebXR' }));
     expect(document.querySelector('model-viewer')?.getAttribute('ar-modes')).toBe('webxr');
   });
+
+  it('avisa al abrir la RA (para apagar los gestos)', () => {
+    Object.defineProperty(navigator, 'userAgent', {
+      value: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120.0.0.0 Mobile Safari/537.36',
+      configurable: true,
+    });
+    const onOpen = vi.fn();
+
+    render(<ARButton modelUrl="/models/aspirin.glb" modelName="Aspirina" onOpen={onOpen} />);
+    fireEvent.click(screen.getByRole('button', { name: /Ver en Realidad Aumentada/i }));
+    expect(onOpen).toHaveBeenCalledTimes(1);
+  });
 });

@@ -693,10 +693,7 @@
 
 .hand-preview {
   bottom: 112px !important;
-  border-color: rgba(18, 198, 189, 0.48) !important;
-  border-radius: 6px !important;
-  background: rgba(7, 22, 19, 0.96) !important;
-  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .app-shell button:focus-visible {
@@ -790,8 +787,24 @@
   .hand-preview {
     right: 12px !important;
     bottom: 130px !important;
-    width: min(280px, calc(100% - 24px)) !important;
-    padding: 8px !important;
+  }
+}
+
+/* Móvil (también en horizontal): recuadro pequeño en la misma esquina para no tapar el modelo. */
+@media (max-width: 600px), (pointer: coarse) and (max-height: 500px) {
+  .hand-preview {
+    width: 132px !important;
+  }
+
+  .hand-preview-status {
+    font-size: 10px !important;
+  }
+
+  /* El botón se ve pequeño pero conserva un área táctil cómoda. */
+  .hand-preview-close::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
   }
 }
 

@@ -11,19 +11,23 @@ vi.mock('@react-three/fiber', () => ({
 }));
 
 // 2. Mock de Drei (Hooks y Componentes 3D) para no requerir contexto WebGL en JSDOM
-vi.mock('@react-three/drei', () => ({
+vi.mock('@react-three/drei', async () => {
+  const { Group } = await import('three');
+  return {
   useGLTF: vi.fn(() => ({
-    scene: {},
+    scene: new Group(),
     animations: [],
   })),
   useAnimations: vi.fn(() => ({
     actions: {},
   })),
   Bounds: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  useBounds: vi.fn(() => null),
   OrbitControls: () => <div data-testid="orbit-controls" />,
   Center: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Float: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
+  };
+});
 
 describe('MoleculeViewer Component', () => {
   it('renderiza el contenedor del canvas 3D y los controles correctamente', () => {
