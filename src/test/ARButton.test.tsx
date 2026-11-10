@@ -34,7 +34,7 @@ describe('ARButton Component', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('permite elegir el modo AR en Android', () => {
+  it('permite elegir el modo AR y dimensionar el modelo en Android', async () => {
     Object.defineProperty(navigator, 'userAgent', {
       value: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120.0.0.0 Mobile Safari/537.36',
       configurable: true,
@@ -54,6 +54,19 @@ describe('ARButton Component', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Scene Viewer' }));
     expect(document.querySelector('model-viewer')?.getAttribute('ar-modes')).toBe('scene-viewer');
+
+    const viewer = document.querySelector('model-viewer')! as HTMLElement & {
+      scale: string;
+      getDimensions: () => { x: number; y: number; z: number };
+    };
+    Object.defineProperty(viewer, 'scale', { configurable: true, writable: true, value: '1 1 1' });
+    Object.defineProperty(viewer, 'getDimensions', {
+      configurable: true,
+      value: () => ({ x: 0.4, y: 0.8, z: 0.3 }),
+    });
+    fireEvent.load(viewer);
+    await waitFor(() => expect(viewer.scale).toBe('0.3125 0.3125 0.3125'));
+    expect(screen.queryByRole('button', { name: /Postal 3D/i })).toBeNull();
   });
 
   it('avisa al abrir la RA (para apagar los gestos)', () => {

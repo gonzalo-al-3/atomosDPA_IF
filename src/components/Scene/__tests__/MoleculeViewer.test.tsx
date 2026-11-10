@@ -23,7 +23,9 @@ vi.mock('@react-three/drei', async () => {
   })),
   Bounds: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   useBounds: vi.fn(() => null),
-  OrbitControls: () => <div data-testid="orbit-controls" />,
+  OrbitControls: ({ enabled }: { enabled: boolean }) => (
+    <div data-testid="orbit-controls" data-enabled={enabled} />
+  ),
   Center: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Float: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   };
@@ -40,5 +42,6 @@ describe('MoleculeViewer Component', () => {
     // Verifica que los controles de órbita simulados se hayan montado
     const controlsElement = screen.getByTestId('orbit-controls');
     expect(controlsElement).toBeInTheDocument();
+    expect(controlsElement).toHaveAttribute('data-enabled', 'false');
   });
 });

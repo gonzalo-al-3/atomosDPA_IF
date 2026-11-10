@@ -1,4 +1,4 @@
-import { useRef, useEffect, useLayoutEffect, Suspense, Component, type ReactNode } from 'react';
+import { useRef, useState, useEffect, useLayoutEffect, Suspense, Component, type ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF, useAnimations, Bounds } from '@react-three/drei';
 import * as THREE from 'three';
@@ -195,6 +195,9 @@ export default function MoleculeViewer({
   hasAnimation = false,
   gesturesActive = false,
 }: MoleculeViewerProps) {
+  const [readyModelUrl, setReadyModelUrl] = useState<string | null>(null);
+  const modelReady = readyModelUrl === modelUrl;
+
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <Canvas
@@ -211,7 +214,7 @@ export default function MoleculeViewer({
         {/* Carga diferida con Suspense */}
         <Suspense fallback={<LoadingFallback />}>
           <Bounds fit clip observe margin={1.3}>
-            <HandGestureGroup active={gesturesActive} resetKey={modelUrl}>
+            <HandGestureGroup active={gesturesActive} resetKey={modelUrl} onModelReady={setReadyModelUrl}>
               {/* Flotación decorativa solo sin gestos: con gestos el centro debe ser estable. */}
               <IdleFloat enabled={!gesturesActive}>
                 <CanvasErrorBoundary modelUrl={modelUrl} fallback={<ProceduralMolecule />}>
@@ -224,7 +227,7 @@ export default function MoleculeViewer({
 
         {/* Controles de cámara táctil / ratón. Se desactivan (sin desmontar) mientras hay gestos,
             para que mano y mouse no compitan; al reactivarlos la cámara sigue donde estaba. */}
-        <OrbitControls makeDefault enabled={!gesturesActive} enablePan enableZoom enableRotate />
+        <OrbitControls makeDefault enabled={modelReady && !gesturesActive} enablePan enableZoom enableRotate />
       </Canvas>
     </div>
   );

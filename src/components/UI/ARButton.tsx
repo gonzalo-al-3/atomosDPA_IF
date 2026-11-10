@@ -5,6 +5,7 @@ import { loadModelViewer, preloadModelViewerWhenIdle } from './loadModelViewer';
 interface ModelViewerElement extends HTMLElement {
   activateAR: () => Promise<void>;
   toBlob: (options?: { idealAspect?: boolean }) => Promise<Blob>;
+  getDimensions: () => { x: number; y: number; z: number };
   canActivateAR?: boolean;
   scale: string;
 }
@@ -48,9 +49,9 @@ interface ARButtonProps {
 }
 
 const SCALE_PRESETS = [
-  { label: 'Compacto (~15 cm)', short: '15 cm', value: '0.035 0.035 0.035' },
-  { label: 'Mesa (~25 cm)', short: '25 cm', value: '0.06 0.06 0.06' },
-  { label: 'Mediano (~45 cm)', short: '45 cm', value: '0.12 0.12 0.12' },
+  { label: 'Compacto (~15 cm)', short: '15 cm', value: 0.15 },
+  { label: 'Mesa (~25 cm)', short: '25 cm', value: 0.25 },
+  { label: 'Mediano (~45 cm)', short: '45 cm', value: 0.45 },
 ];
 
 export default function ARButton({
@@ -63,7 +64,8 @@ export default function ARButton({
   const [isAndroidDevice, setIsAndroidDevice] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false);
-  const [selectedScale, setSelectedScale] = useState<string>(SCALE_PRESETS[1].value);
+  const [selectedTargetSize, setSelectedTargetSize] = useState<number>(SCALE_PRESETS[1].value);
+  const [modelBaseSize, setModelBaseSize] = useState<number | null>(null);
   const [allowPinchScale, setAllowPinchScale] = useState<boolean>(true);
   const [isInARSession, setIsInARSession] = useState<boolean>(false);
   const [hideARHudForPhoto, setHideARHudForPhoto] = useState<boolean>(false);
@@ -84,6 +86,11 @@ export default function ARButton({
       return modelUrl;
     }
   }, [modelUrl]);
+
+  const modelScale = useMemo(() => {
+    const multiplier = modelBaseSize ? selectedTargetSize / modelBaseSize : 1;
+    return `${multiplier} ${multiplier} ${multiplier}`;
+  }, [modelBaseSize, selectedTargetSize]);
 
   useEffect(() => {
     const checkMobileCompatibility = () => {
@@ -188,6 +195,11 @@ export default function ARButton({
     if (!viewer) return;
 
     const handleLoad = async () => {
+      const dimensions = viewer.getDimensions();
+      const currentScale = Number.parseFloat(viewer.scale) || 1;
+      const largestDimension = Math.max(dimensions.x, dimensions.y, dimensions.z);
+      const baseSize = largestDimension / currentScale;
+      if (Number.isFinite(baseSize) && baseSize > 0) setModelBaseSize(baseSize);
       setIsModelLoaded(true);
       setArError(null);
       // Pre-capturamos el modelo apenas carga en el modal (cuando el canvas WebGL sí tiene los píxeles)
@@ -239,6 +251,7 @@ export default function ARButton({
   const handleOpenModal = () => {
     onOpen?.();
     setIsModelLoaded(false);
+    setModelBaseSize(null);
     setArError(null);
     setIsInARSession(false);
     cachedModelBlobRef.current = null;
@@ -467,12 +480,12 @@ export default function ARButton({
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                 <span style={{ color: '#94b9b4', fontWeight: 600 }}>Tamaño:</span>
                 {SCALE_PRESETS.map((preset) => {
-                  const active = selectedScale === preset.value;
+                  const active = selectedTargetSize === preset.value;
                   return (
                     <button
                       key={preset.label}
                       type="button"
-                      onClick={() => setSelectedScale(preset.value)}
+                      onClick={() => setSelectedTargetSize(preset.value)}
                       style={{
                         padding: '0.25rem 0.5rem',
                         borderRadius: '6px',
@@ -532,7 +545,7 @@ export default function ARButton({
                 ar-modes={isAndroidDevice ? selectedARMode : 'webxr scene-viewer quick-look'}
                 ar-placement="floor"
                 ar-scale={allowPinchScale ? 'auto' : 'fixed'}
-                scale={selectedScale}
+                scale={modelScale}
                 shadow-intensity="1"
                 loading="eager"
                 reveal="auto"
@@ -594,12 +607,12 @@ export default function ARButton({
                       }}
                     >
                       {SCALE_PRESETS.map((preset) => {
-                        const active = selectedScale === preset.value;
+                        const active = selectedTargetSize === preset.value;
                         return (
                           <button
                             key={preset.short}
                             type="button"
-                            onClick={() => setSelectedScale(preset.value)}
+                            onClick={() => setSelectedTargetSize(preset.value)}
                             style={{
                               padding: '6px 10px',
                               borderRadius: '9999px',
@@ -700,25 +713,6 @@ export default function ARButton({
                   : '⏳ Preparando modelo 3D...'}
               </button>
 
-              {isModelLoaded && (
-                <button
-                  type="button"
-                  onClick={handleSnapshot}
-                  title="Guardar postal 3D del modelo"
-                  style={{
-                    padding: '0.75rem 1rem',
-                    backgroundColor: '#17413b',
-                    color: '#e8fbf8',
-                    border: '1px solid #28635a',
-                    borderRadius: '9999px',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                  }}
-                >
-                  📸 Postal 3D
-                </button>
-              )}
             </div>
           </div>
         </div>,

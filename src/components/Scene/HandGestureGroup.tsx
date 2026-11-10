@@ -19,6 +19,7 @@ interface HandGestureGroupProps {
   active: boolean;
   /** Al cambiar (otro modelo) se reinicia todo: centro, giro y zoom, y se reajusta la cámara. */
   resetKey: string;
+  onModelReady: (modelUrl: string) => void;
 }
 
 interface Controls {
@@ -30,7 +31,7 @@ interface Controls {
  * Jerarquía: grupo exterior = posición (origen de la molécula); interior = giro y escala.
  * Así el giro con la mano abierta siempre es sobre el centro de la molécula, esté donde esté.
  */
-export default function HandGestureGroup({ children, active, resetKey }: HandGestureGroupProps) {
+export default function HandGestureGroup({ children, active, resetKey, onModelReady }: HandGestureGroupProps) {
   const outer = useRef<Group>(null);
   const inner = useRef<Group>(null);
   const bounds = useBounds();
@@ -66,6 +67,7 @@ export default function HandGestureGroup({ children, active, resetKey }: HandGes
       i.scale.setScalar(1);
       resetModelTransform();
       bounds?.refresh().clip().fit();
+      onModelReady(resetKey);
     }
 
     // Ejes de la pantalla en el mundo (la cámara está quieta mientras hay gestos).
