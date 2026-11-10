@@ -200,7 +200,7 @@
   height: 100dvh;
   min-height: 0;
   display: grid;
-  grid-template-rows: 76px minmax(0, 1fr);
+  grid-template-rows: 64px minmax(0, 1fr);
   overflow: hidden;
   color: var(--app-text);
   background: var(--app-ink);
@@ -229,32 +229,21 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 0;
 }
 
 .header-social-link {
   display: inline-flex;
   flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  color: var(--app-accent);
-  transition: color 140ms ease, background 140ms ease;
-}
-
-.header-social-link:hover {
-  background: var(--app-panel-raised);
-  color: var(--app-green);
+  color: var(--app-muted);
 }
 
 .header-social-link svg {
-  width: 19px;
-  height: 19px;
+  display: block;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.8;
+  stroke-width: 1.7;
 }
 
 .header-social-link .instagram-dot {
@@ -265,25 +254,21 @@
 .header-mark {
   display: block;
   flex: none;
-  width: 290px;
-  height: 70px;
+  width: auto;
+  height: 64px;
   object-fit: contain;
 }
 
 .header-logo-link {
   display: inline-flex;
   flex: none;
+  height: 64px;
   border-radius: 4px;
 }
 
 .header-logo-link:focus-visible {
   outline: 2px solid var(--app-accent);
   outline-offset: 3px;
-}
-
-.header-social-link:focus-visible {
-  outline: 2px solid var(--app-accent);
-  outline-offset: 2px;
 }
 
 .viewer-stage {
@@ -459,204 +444,6 @@
   margin-left: 4px;
   color: var(--app-green);
   font-size: 10px;
-}
-
-.ar-mode-picker {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 10px 1.2rem;
-  border-bottom: 1px solid #225c54;
-  background: #0d1d1b;
-  font-size: 12px;
-}
-
-.ar-mode-picker-label {
-  color: var(--app-muted);
-  font-weight: 650;
-}
-
-.ar-mode-buttons {
-  display: flex;
-  gap: 3px;
-  padding: 3px;
-  border: 1px solid var(--app-line);
-  border-radius: 6px;
-  background: #050d0c;
-}
-
-.ar-mode-buttons button {
-  min-height: 34px;
-  padding: 0 10px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--app-muted);
-  font: inherit;
-  font-size: 11px;
-  font-weight: 650;
-  cursor: pointer;
-}
-
-.ar-mode-buttons button.is-selected {
-  border-color: #1a766d;
-  background: #10332d;
-  color: var(--app-accent);
-}
-
-.gesture-help-overlay {
-  position: fixed;
-  z-index: 1200;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-  overflow-y: auto;
-  background: rgba(1, 8, 7, 0.82);
-  backdrop-filter: blur(5px);
-}
-
-.gesture-help-dialog {
-  width: min(560px, 100%);
-  max-height: calc(100dvh - 2rem);
-  padding: 22px;
-  overflow-y: auto;
-  border: 1px solid var(--app-line);
-  border-radius: 8px;
-  background: var(--app-panel);
-  color: var(--app-text);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
-}
-
-.gesture-help-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--app-line);
-}
-
-.gesture-help-header h2 {
-  margin-top: 4px;
-  font-family: 'Manrope Variable', 'Avenir Next', 'Segoe UI', sans-serif;
-  font-size: 21px;
-  font-weight: 700;
-}
-
-.gesture-help-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  padding: 16px 0;
-}
-
-.gesture-help-card {
-  min-width: 0;
-  padding: 12px;
-  border: 1px solid rgba(148, 185, 180, 0.2);
-  border-radius: 6px;
-  background: rgba(5, 13, 12, 0.58);
-}
-
-.gesture-diagram {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 76px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  background: #050d0c;
-}
-
-.gesture-hand {
-  font-size: 32px;
-  line-height: 1;
-}
-
-.gesture-motion {
-  color: var(--app-green);
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.molecule-sketch {
-  width: 52px;
-  height: 44px;
-  overflow: visible;
-}
-
-.molecule-sketch line {
-  stroke: #8eb9b1;
-  stroke-width: 2;
-}
-
-.molecule-sketch circle {
-  fill: var(--app-accent);
-  stroke: #07110f;
-  stroke-width: 1.5;
-}
-
-.molecule-sketch circle:nth-of-type(2) {
-  fill: var(--app-green);
-}
-
-.gesture-zoom {
-  color: var(--app-accent);
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.05;
-}
-
-.gesture-help-card h3 {
-  font-family: 'Manrope Variable', 'Avenir Next', 'Segoe UI', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.gesture-help-card p {
-  margin-top: 5px;
-  color: var(--app-muted);
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.gesture-help-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 14px;
-  border-top: 1px solid var(--app-line);
-}
-
-.gesture-help-actions button {
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid var(--app-line);
-  border-radius: 5px;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.gesture-cancel-button {
-  background: transparent;
-  color: var(--app-muted);
-}
-
-.gesture-start-button {
-  border-color: var(--app-accent) !important;
-  background: var(--app-accent);
-  color: #041210;
-}
-
-.gesture-help-overlay button:focus-visible {
-  outline: 2px solid var(--app-green);
-  outline-offset: 3px;
 }
 
 .catalog-item {
@@ -847,7 +634,10 @@
 
 .hand-preview {
   bottom: 112px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-color: rgba(18, 198, 189, 0.48) !important;
+  border-radius: 6px !important;
+  background: rgba(7, 22, 19, 0.96) !important;
+  backdrop-filter: blur(12px);
 }
 
 .app-shell button:focus-visible {
@@ -867,35 +657,33 @@
 
 @media (max-width: 600px) {
   .app-shell {
-    grid-template-rows: 62px minmax(0, 1fr);
+    grid-template-rows: 56px minmax(0, 1fr);
   }
 
   .app-header {
-    gap: 8px;
-    padding: 0 10px;
+    padding: 0 15px;
   }
 
   .app-header h1 {
-    font-size: 17px;
+    font-size: 15px;
+    line-height: 1.1;
   }
 
   .header-title {
-    gap: 6px;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-right: 8px;
   }
 
   .header-mark {
-    width: clamp(112px, 36vw, 150px);
-    height: 52px;
+    width: auto;
+    height: 34px;
+    object-fit: contain;
   }
 
-  .header-social-link {
-    width: 26px;
-    height: 28px;
-  }
-
-  .header-social-link svg {
-    width: 17px;
-    height: 17px;
+  .header-logo-link {
+    width: auto;
+    height: 34px;
   }
 
   .catalog-toggle {
@@ -941,69 +729,26 @@
   .hand-preview {
     right: 12px !important;
     bottom: 130px !important;
-  }
-}
-
-@media (max-width: 520px) {
-  .gesture-help-dialog {
-    padding: 16px;
-  }
-
-  .gesture-help-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .gesture-help-card {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .gesture-diagram {
-    min-height: 70px;
-    margin-bottom: 10px;
-  }
-
-  .gesture-help-card p {
-    margin-top: 3px;
-  }
-}
-
-/* Móvil (también en horizontal): recuadro pequeño en la misma esquina para no tapar el modelo. */
-@media (max-width: 600px), (pointer: coarse) and (max-height: 500px) {
-  .hand-preview {
-    width: 132px !important;
-  }
-
-  .hand-preview-status {
-    font-size: 10px !important;
-  }
-
-  /* El botón se ve pequeño pero conserva un área táctil cómoda. */
-  .hand-preview-close::before {
-    content: '';
-    position: absolute;
-    inset: -6px;
+    width: min(280px, calc(100% - 24px)) !important;
+    padding: 8px !important;
   }
 }
 
 @media (max-width: 360px) {
-  .app-header {
-    padding-inline: 8px;
+  .header-mark,
+  .header-logo-link {
+    height: 29px;
   }
+}
 
+@media (max-width: 280px) {
   .app-header h1 {
-    font-size: clamp(12px, 4.8vw, 15px);
-    white-space: nowrap;
+    font-size: 13px;
   }
 
-  .header-title {
-    gap: 4px;
-  }
-
-  .header-mark {
-    width: clamp(88px, 36vw, 112px);
+  .header-mark,
+  .header-logo-link {
+    height: 22px;
   }
 }
 

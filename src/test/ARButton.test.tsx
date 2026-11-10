@@ -46,11 +46,14 @@ describe('ARButton Component', () => {
 
     fireEvent.click(button);
     expect(screen.getByText(/Mueve tu teléfono en círculos sobre la mesa/i)).toBeTruthy();
-    expect(screen.getByRole('group', { name: 'Modo de Realidad Aumentada' })).toBeTruthy();
-    expect(document.querySelector('model-viewer')?.getAttribute('ar-modes')).toBe('scene-viewer');
-
-    fireEvent.click(screen.getByRole('button', { name: 'WebXR' }));
+    const modeGroup = screen.getByRole('group', { name: 'Modo de Realidad Aumentada' });
+    expect(modeGroup.querySelectorAll('button')[0].textContent).toBe('WebXR');
+    expect(modeGroup.querySelectorAll('button')[1].textContent).toBe('Scene Viewer');
+    expect(screen.getByRole('button', { name: 'WebXR' }).getAttribute('aria-pressed')).toBe('true');
     expect(document.querySelector('model-viewer')?.getAttribute('ar-modes')).toBe('webxr');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Scene Viewer' }));
+    expect(document.querySelector('model-viewer')?.getAttribute('ar-modes')).toBe('scene-viewer');
   });
 
   it('avisa al abrir la RA (para apagar los gestos)', () => {

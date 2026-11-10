@@ -69,7 +69,7 @@ export default function ARButton({
   const [hideARHudForPhoto, setHideARHudForPhoto] = useState<boolean>(false);
   const [photoToast, setPhotoToast] = useState<string | null>(null);
   const [arError, setArError] = useState<string | null>(null);
-  const [selectedARMode, setSelectedARMode] = useState<'scene-viewer' | 'webxr'>('scene-viewer');
+  const [selectedARMode, setSelectedARMode] = useState<'scene-viewer' | 'webxr'>('webxr');
 
   const modelViewerRef = useRef<ModelViewerElement | null>(null);
   // Guardamos en caché una captura válida del lienzo 3D antes de entrar a WebXR
@@ -432,19 +432,19 @@ export default function ARButton({
                 <div className="ar-mode-buttons" role="group" aria-label="Modo de Realidad Aumentada">
                   <button
                     type="button"
-                    className={selectedARMode === 'scene-viewer' ? 'is-selected' : ''}
-                    aria-pressed={selectedARMode === 'scene-viewer'}
-                    onClick={() => setSelectedARMode('scene-viewer')}
-                  >
-                    Scene Viewer
-                  </button>
-                  <button
-                    type="button"
                     className={selectedARMode === 'webxr' ? 'is-selected' : ''}
                     aria-pressed={selectedARMode === 'webxr'}
                     onClick={() => setSelectedARMode('webxr')}
                   >
                     WebXR
+                  </button>
+                  <button
+                    type="button"
+                    className={selectedARMode === 'scene-viewer' ? 'is-selected' : ''}
+                    aria-pressed={selectedARMode === 'scene-viewer'}
+                    onClick={() => setSelectedARMode('scene-viewer')}
+                  >
+                    Scene Viewer
                   </button>
                 </div>
               </div>

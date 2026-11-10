@@ -14,13 +14,18 @@ let pending: Promise<void> | null = null;
 /** Registra <model-viewer> (una sola vez). Si falla, el siguiente intento vuelve a descargarlo. */
 export function loadModelViewer(): Promise<void> {
   if (customElements.get('model-viewer')) return Promise.resolve();
-  pending ??= import(/* @vite-ignore */ MODEL_VIEWER_URL).then(
-    () => undefined,
-    (err: unknown) => {
+  pending ??= new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = MODEL_VIEWER_URL;
+    script.onload = () => resolve();
+    script.onerror = () => {
+      script.remove();
       pending = null;
-      throw err;
-    },
-  );
+      reject(new Error(`No se pudo cargar model-viewer desde ${MODEL_VIEWER_URL}`));
+    };
+    document.head.append(script);
+  });
   return pending;
 }
 
