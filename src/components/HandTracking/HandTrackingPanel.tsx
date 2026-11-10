@@ -1,8 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { handStore, LANDMARK_COUNT } from '../../hooks/handStore';
 
+// Resolución interna del canvas de landmarks (se escala por CSS al tamaño del recuadro).
 const W = 320;
 const H = 240;
+/** Ancho del recuadro en escritorio (px). En móvil lo fija App.css. */
+const PREVIEW_WIDTH = 240;
 
 // Conexiones de la mano en MediaPipe (índices de los 21 landmarks).
 const CONNECTIONS: [number, number][] = [
@@ -43,7 +46,7 @@ export default function HandTrackingPanel({ attachPreview, starting, onClose }: 
           ctx.lineTo(lm[b * 3] * W, lm[b * 3 + 1] * H);
         }
         ctx.stroke();
-        ctx.fillStyle = handStore.pinching ? '#2bdd48' : '#12c6bd';
+        ctx.fillStyle = handStore.grabbing ? '#2bdd48' : '#12c6bd';
         for (let i = 0; i < LANDMARK_COUNT; i++) {
           ctx.beginPath();
           ctx.arc(lm[i * 3] * W, lm[i * 3 + 1] * H, 3, 0, Math.PI * 2);
@@ -60,56 +63,22 @@ export default function HandTrackingPanel({ attachPreview, starting, onClose }: 
     <div
       className="hand-preview"
       role="region"
-      aria-label="Imagen de la cámara"
+      aria-label="Imagen de la cámara (no sale de este equipo)"
       style={{
         position: 'absolute',
         right: '1rem',
         bottom: '1rem',
-        width: W,
+        width: PREVIEW_WIDTH,
         maxWidth: 'calc(100% - 2rem)',
-        padding: '0.6rem',
-        borderRadius: '10px',
-        backgroundColor: 'rgba(7, 22, 19, 0.94)',
-        border: '1px solid #225c54',
-        color: '#e8fbf8',
+        aspectRatio: `${W} / ${H}`,
+        borderRadius: '6px',
+        overflow: 'hidden',
+        backgroundColor: '#050d0c',
         zIndex: 10,
-        boxSizing: 'border-box',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-        <span style={{ fontSize: '0.75rem', color: '#94b9b4' }}>
-          {starting ? 'Iniciando cámara…' : 'Cámara activa — la imagen no sale de este equipo'}
-        </span>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Cerrar recuadro de la cámara (los gestos siguen activos)"
-          title="Cerrar recuadro (los gestos siguen activos)"
-          style={{
-            border: 'none',
-            background: 'transparent',
-            color: '#94b9b4',
-            fontSize: '1.1rem',
-            lineHeight: 1,
-            cursor: 'pointer',
-            padding: '0 0.25rem',
-          }}
-        >
-          ×
-        </button>
-      </div>
-
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          aspectRatio: `${W} / ${H}`,
-          backgroundColor: '#050d0c',
-          borderRadius: '6px',
-          overflow: 'hidden',
-          transform: 'scaleX(-1)', // vista espejo
-        }}
-      >
+      {/* Video y landmarks en espejo; el botón queda fuera para no invertirse. */}
+      <div style={{ position: 'absolute', inset: 0, transform: 'scaleX(-1)' }}>
         <video
           ref={attachPreview}
           muted
@@ -124,6 +93,49 @@ export default function HandTrackingPanel({ attachPreview, starting, onClose }: 
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         />
       </div>
+
+      {starting && (
+        <span
+          className="hand-preview-status"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'grid',
+            placeItems: 'center',
+            fontSize: '0.75rem',
+            color: '#94b9b4',
+          }}
+        >
+          Iniciando…
+        </span>
+      )}
+
+      <button
+        className="hand-preview-close"
+        type="button"
+        onClick={onClose}
+        aria-label="Cerrar recuadro de la cámara (los gestos siguen activos)"
+        title="Cerrar recuadro (los gestos siguen activos)"
+        style={{
+          position: 'absolute',
+          top: '4px',
+          right: '4px',
+          width: '22px',
+          height: '22px',
+          display: 'grid',
+          placeItems: 'center',
+          padding: 0,
+          border: 'none',
+          borderRadius: '50%',
+          background: 'rgba(5, 13, 12, 0.55)',
+          color: '#e8fbf8',
+          fontSize: '0.95rem',
+          lineHeight: 1,
+          cursor: 'pointer',
+        }}
+      >
+        ×
+      </button>
     </div>
   );
 }

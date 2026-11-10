@@ -42,6 +42,8 @@ interface ARButtonProps {
   modelUrl: string;
   modelName?: string;
   compact?: boolean;
+  /** Se llama al abrir la RA (p. ej. para apagar los gestos y liberar la cámara antes de que la pida la RA). */
+  onOpen?: () => void;
 }
 
 const SCALE_PRESETS = [
@@ -54,6 +56,7 @@ export default function ARButton({
   modelUrl,
   modelName = 'Sistema Atómico',
   compact = false,
+  onOpen,
 }: ARButtonProps) {
   const [isARSupportedDevice, setIsARSupportedDevice] = useState<boolean>(false);
   const [isAndroidDevice, setIsAndroidDevice] = useState<boolean>(false);
@@ -228,6 +231,7 @@ export default function ARButton({
   }, [isModalOpen, absoluteModelUrl]);
 
   const handleOpenModal = () => {
+    onOpen?.();
     setIsModelLoaded(false);
     setArError(null);
     setIsInARSession(false);

@@ -180,7 +180,8 @@ export default function App() {
             <strong title={selectedModel.name}>{selectedModel.name}</strong>
           </div>
           <div className="mode-controls" role="group" aria-label="Modo de visualización" aria-busy={hand.starting}>
-            <ARButton modelUrl={selectedModel.modelUrl} modelName={selectedModel.name} compact />
+            {/* Al abrir la RA se apagan los gestos: ambos usan la cámara. */}
+            <ARButton modelUrl={selectedModel.modelUrl} modelName={selectedModel.name} compact onOpen={turnOff} />
             <button
               className={`mode-button${gesturesActive ? ' is-active' : ''}`}
               type="button"

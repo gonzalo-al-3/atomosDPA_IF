@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { perfStore } from './perfStore';
 import { handStore } from '../hooks/handStore';
-import { PINCH_GRAB, PINCH_RELEASE, ZOOM_MAX, ZOOM_MIN } from '../hooks/handProcessing';
+import { FIST_GRAB, FIST_RELEASE, ZOOM_MAX, ZOOM_MIN } from '../hooks/handProcessing';
 
 const REFRESH_MS = 250;
 
@@ -9,13 +9,12 @@ const REFRESH_MS = 250;
 function handLines(): string {
   const h = handStore;
   if (!h.present) return 'mano     —';
-  const deg = (r: number) => ((r * 180) / Math.PI).toFixed(0).padStart(4);
   return (
     `palma    x ${h.palmX.toFixed(2)}  y ${h.palmY.toFixed(2)}\n` +
-    `pinch    ${h.pinchRatio.toFixed(2)}  (agarra <${PINCH_GRAB}, suelta >${PINCH_RELEASE})\n` +
-    `agarre   ${h.pinching ? `SÍ  #${h.grabId}` : 'no'}\n` +
+    `puño     ${h.curlRatio.toFixed(2)}  (cierra <${FIST_GRAB}, abre >${FIST_RELEASE})\n` +
+    `agarre   ${h.grabbing ? `SÍ  #${h.grabId}` : 'no (mano abierta = girar)'}\n` +
     `tamaño   ${h.handSize.toFixed(3)}  ref ${h.grabRefSize.toFixed(3)}  razón ${h.sizeRatio.toFixed(2)}\n` +
-    `giro     x ${deg(h.rotationDelta.x)}°  y ${deg(h.rotationDelta.y)}°\n` +
+    `arrastre x ${h.dragOffset.x.toFixed(3)}  y ${h.dragOffset.y.toFixed(3)}\n` +
     `zoom     ${h.zoomLevel.toFixed(2)}  (${ZOOM_MIN}–${ZOOM_MAX})`
   );
 }
