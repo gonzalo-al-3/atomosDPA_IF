@@ -505,6 +505,160 @@
   color: var(--app-accent);
 }
 
+.gesture-help-overlay {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  overflow-y: auto;
+  background: rgba(1, 8, 7, 0.82);
+  backdrop-filter: blur(5px);
+}
+
+.gesture-help-dialog {
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 2rem);
+  padding: 22px;
+  overflow-y: auto;
+  border: 1px solid var(--app-line);
+  border-radius: 8px;
+  background: var(--app-panel);
+  color: var(--app-text);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+}
+
+.gesture-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--app-line);
+}
+
+.gesture-help-header h2 {
+  margin-top: 4px;
+  font-family: 'Manrope Variable', 'Avenir Next', 'Segoe UI', sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.gesture-help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px 0;
+}
+
+.gesture-help-card {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(148, 185, 180, 0.2);
+  border-radius: 6px;
+  background: rgba(5, 13, 12, 0.58);
+}
+
+.gesture-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 76px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  background: #050d0c;
+}
+
+.gesture-hand {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.gesture-motion {
+  color: var(--app-green);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.molecule-sketch {
+  width: 52px;
+  height: 44px;
+  overflow: visible;
+}
+
+.molecule-sketch line {
+  stroke: #8eb9b1;
+  stroke-width: 2;
+}
+
+.molecule-sketch circle {
+  fill: var(--app-accent);
+  stroke: #07110f;
+  stroke-width: 1.5;
+}
+
+.molecule-sketch circle:nth-of-type(2) {
+  fill: var(--app-green);
+}
+
+.gesture-zoom {
+  color: var(--app-accent);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.gesture-help-card h3 {
+  font-family: 'Manrope Variable', 'Avenir Next', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.gesture-help-card p {
+  margin-top: 5px;
+  color: var(--app-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.gesture-help-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--app-line);
+}
+
+.gesture-help-actions button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--app-line);
+  border-radius: 5px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.gesture-cancel-button {
+  background: transparent;
+  color: var(--app-muted);
+}
+
+.gesture-start-button {
+  border-color: var(--app-accent) !important;
+  background: var(--app-accent);
+  color: #041210;
+}
+
+.gesture-help-overlay button:focus-visible {
+  outline: 2px solid var(--app-green);
+  outline-offset: 3px;
+}
+
 .catalog-item {
   display: flex;
   flex-direction: column;
@@ -787,6 +941,32 @@
   .hand-preview {
     right: 12px !important;
     bottom: 130px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .gesture-help-dialog {
+    padding: 16px;
+  }
+
+  .gesture-help-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .gesture-help-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gesture-diagram {
+    min-height: 70px;
+    margin-bottom: 10px;
+  }
+
+  .gesture-help-card p {
+    margin-top: 3px;
   }
 }
 

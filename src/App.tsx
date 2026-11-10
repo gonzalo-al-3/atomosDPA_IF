@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import modelsData from './data/modelsData.json';
 import MoleculeViewer from './components/Scene/MoleculeViewer';
 import HandTrackingPanel from './components/HandTracking/HandTrackingPanel';
@@ -27,6 +28,7 @@ export default function App() {
   const [selectedModel, setSelectedModel] = useState(catalog[0]);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [catalogView, setCatalogView] = useState<'catalog' | 'description'>('catalog');
+  const [gestureHelpOpen, setGestureHelpOpen] = useState(false);
   // Control por gestos: en estado de React solo el modo y los errores (los landmarks van en handStore).
   const hand = useHandTracking();
   const gesturesActive = isGesturesActive(hand.mode);
@@ -41,6 +43,15 @@ export default function App() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [gesturesActive, turnOff]);
+
+  useEffect(() => {
+    if (!gestureHelpOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setGestureHelpOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [gestureHelpOpen]);
 
   return (
     <div className="app-shell">
@@ -187,7 +198,7 @@ export default function App() {
               type="button"
               aria-pressed={gesturesActive}
               aria-label={hand.starting ? 'Iniciando control por gestos' : gesturesActive ? 'Desactivar control por gestos' : 'Activar control por gestos'}
-              onClick={() => gesturesActive ? hand.turnOff() : hand.press('gestures')}
+              onClick={() => gesturesActive ? hand.turnOff() : setGestureHelpOpen(true)}
               title={hand.starting ? 'Iniciando cámara…' : 'Activar control por gestos'}
             >
               <span className="mode-indicator" aria-hidden="true" />
@@ -207,6 +218,91 @@ export default function App() {
           )}
         </section>
       </main>
+      {gestureHelpOpen && createPortal(
+        <div
+          className="gesture-help-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="gesture-help-title"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setGestureHelpOpen(false);
+          }}
+        >
+          <section className="gesture-help-dialog">
+            <header className="gesture-help-header">
+              <div>
+                <span className="eyebrow">Control del modelo</span>
+                <h2 id="gesture-help-title">Gestos de la mano</h2>
+              </div>
+              <button
+                className="icon-button"
+                type="button"
+                aria-label="Cerrar instrucciones de gestos"
+                onClick={() => setGestureHelpOpen(false)}
+              >
+                ×
+              </button>
+            </header>
+            <div className="gesture-help-grid">
+              <article className="gesture-help-card">
+                <div className="gesture-diagram" aria-hidden="true">
+                  <span className="gesture-hand">🖐️</span>
+                  <span className="gesture-motion">↻</span>
+                  <svg className="molecule-sketch" viewBox="0 0 64 52">
+                    <line x1="17" y1="15" x2="32" y2="27" />
+                    <line x1="32" y1="27" x2="48" y2="14" />
+                    <line x1="32" y1="27" x2="25" y2="43" />
+                    <line x1="32" y1="27" x2="48" y2="40" />
+                    <circle cx="17" cy="15" r="6" />
+                    <circle cx="32" cy="27" r="7" />
+                    <circle cx="48" cy="14" r="5" />
+                    <circle cx="25" cy="43" r="5" />
+                    <circle cx="48" cy="40" r="5" />
+                  </svg>
+                </div>
+                <h3>Mano abierta</h3>
+                <p>Mueve la mano para rotar la molécula.</p>
+              </article>
+              <article className="gesture-help-card">
+                <div className="gesture-diagram" aria-hidden="true">
+                  <span className="gesture-hand">✊</span>
+                  <span className="gesture-motion">↔</span>
+                  <svg className="molecule-sketch" viewBox="0 0 64 52">
+                    <line x1="17" y1="15" x2="32" y2="27" />
+                    <line x1="32" y1="27" x2="48" y2="14" />
+                    <line x1="32" y1="27" x2="25" y2="43" />
+                    <line x1="32" y1="27" x2="48" y2="40" />
+                    <circle cx="17" cy="15" r="6" />
+                    <circle cx="32" cy="27" r="7" />
+                    <circle cx="48" cy="14" r="5" />
+                    <circle cx="25" cy="43" r="5" />
+                    <circle cx="48" cy="40" r="5" />
+                  </svg>
+                  <span className="gesture-zoom">+<br />−</span>
+                </div>
+                <h3>Puño cerrado</h3>
+                <p>Mueve la mano para trasladar. Acércala o aléjala para ajustar el zoom.</p>
+              </article>
+            </div>
+            <footer className="gesture-help-actions">
+              <button className="gesture-cancel-button" type="button" onClick={() => setGestureHelpOpen(false)}>
+                Cancelar
+              </button>
+              <button
+                className="gesture-start-button"
+                type="button"
+                onClick={() => {
+                  setGestureHelpOpen(false);
+                  hand.press('gestures');
+                }}
+              >
+                Activar gestos
+              </button>
+            </footer>
+          </section>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
